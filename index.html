@@ -3,17 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>example.com</title>
+    <title>/gs/ - gschan</title>
     <link rel="stylesheet" href="src/style.css" />
-    <script src="/widgets-1.10.0/lastfm.js" type="module"></script>
+    <link rel="stylesheet" href="src/yotsuba.css" />
   </head>
   <body>
-    <div class="lastfm-dock">
-      <lastfm-tracks 
-        interval="35" 
-        apikey="b025440f263260fc016da433932b50e4" 
-        user="tewi3k">
-      </lastfm-tracks>
-    </div>
+
+    <lastfm-tracks 
+      interval="35" 
+      user="tewi3k" 
+      apikey="b025440f263260fc016da433932b50e4" 
+      class="no-albums">
+    </lastfm-tracks>
+
+    <script type="module" src="/src/main.js"></script>
+    <div id="c_widget_wrap"><div id="c_widget"></div></div>
+    
   </body>
 </html>
