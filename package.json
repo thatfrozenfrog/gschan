@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "tripcode": "^4.0.0"
   }
 }

@@ -1,0 +1,199 @@
+#c_widget_wrap {
+  width: min(100%, 1120px);
+  margin: 26px auto 40px;
+}
+
+#c_widget {
+  width: 100%;
+}
+
+#c_widget .c-widget-shell {
+  display: grid;
+  gap: 10px;
+}
+
+#c_widget .c-widget-banner {
+  margin-bottom: 2px;
+}
+
+#c_widget .c-inputDiv {
+  display: grid;
+  justify-items: center;
+}
+
+#c_widget #c_form {
+  width: min(100%, 520px);
+}
+
+#c_widget .c-postFormTable {
+  width: 100%;
+}
+
+#c_widget .c-postFormTable td:last-child {
+  width: 100%;
+}
+
+#c_widget .c-postFormTable input[type="text"],
+#c_widget .c-postFormTable input[type="url"],
+#c_widget .c-postFormTable textarea {
+  width: 100%;
+}
+
+#c_widget .c-postFormTable textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+#c_widget #c_replyingText {
+  display: inline-block;
+  margin-right: 10px;
+  color: #117743;
+  font-weight: bold;
+}
+
+#c_widget #c_submitButton,
+#c_widget .c-replyButton,
+#c_widget .c-paginationButton {
+  border: 1px solid #800;
+  background: #f0e0d6;
+  color: #800000;
+  cursor: pointer;
+  font: inherit;
+  padding: 3px 8px;
+}
+
+#c_widget #c_submitButton:hover,
+#c_widget .c-replyButton:hover,
+#c_widget .c-paginationButton:hover {
+  color: red;
+}
+
+#c_widget #c_submitButton:disabled,
+#c_widget .c-paginationButton:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+#c_widget .c_container {
+  display: grid;
+  gap: 10px;
+}
+
+#c_widget .c-commentThread {
+  margin: 0;
+  clear: both;
+}
+
+#c_widget .c-postContainer {
+  width: 100%;
+}
+
+#c_widget .c-post {
+  min-width: 0;
+}
+
+#c_widget .c-postTools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+}
+
+#c_widget .c-postTools:empty {
+  display: none;
+}
+
+#c_widget .c-opToggleWrap {
+  float: left;
+  margin-right: 6px;
+}
+
+#c_widget .c-headerReply,
+#c_widget .c-threadToggle {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+}
+
+#c_widget .c-headerReply {
+  color: #000080 !important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#c_widget .c-headerReply:hover {
+  color: #ff0000 !important;
+}
+
+#c_widget .c-threadToggle {
+  color: #800000 !important;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+#c_widget .c-threadToggle:hover {
+  color: #ff0000 !important;
+}
+
+#c_widget .c-nameSite {
+  color: #8f6fb5 !important;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#c_widget .c-nameSite:hover {
+  color: #6c47a3 !important;
+  text-decoration: underline;
+}
+
+#c_widget blockquote.postMessage {
+  margin: 5px 10px 10px 22px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+#c_widget .c-replyContainer {
+  display: grid;
+  gap: 4px;
+  margin-left: 0;
+  padding-top: 4px;
+}
+
+#c_widget .c-threadDivider {
+  width: 100%;
+}
+
+#c_widget #c_pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+#c_widget .c-closedMessage {
+  padding: 12px;
+  border: 1px solid #d9bfb7;
+  background: #f0e0d6;
+}
+
+@media (max-width: 700px) {
+  #c_widget_wrap {
+    margin: 18px auto 28px;
+  }
+
+  #c_widget .c-postTools {
+    display: flex;
+    margin-left: 0;
+    margin-top: 4px;
+  }
+
+  #c_widget .c-replyContainer {
+    margin-left: 0;
+  }
+
+  #c_widget blockquote.postMessage {
+    margin-left: 12px;
+  }
+}
