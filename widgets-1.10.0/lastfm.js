@@ -8,7 +8,7 @@
  *    https://lastfm-widgets.deno.dev/
  */
 
-const scriptURI = import.meta.url;
+const tracksStylesheetURI = new URL('./tracks.css', import.meta.url);
 const LOG = false;
 
 // I see en-GB 24h formats as pretty intuitive and "universally understandable".
@@ -188,6 +188,26 @@ class Tracks extends HTMLElement {
     #okUserAgent = this.#notBot(this.#userAgent);
 
     #fetcher = fetcher.json;
+    #expanded = false;
+    #shouldAnimatePlaylist = false;
+    #onDocumentPointerDown = (event) => {
+        if (!this.#expanded) {
+            return;
+        }
+        const path = event.composedPath();
+        if (!path.includes(this) && !path.includes(this.shadowRoot)) {
+            this.#setExpanded(false);
+        }
+    };
+    #onDocumentKeyDown = (event) => {
+        if (event.key === 'Escape' && this.#expanded) {
+            this.#setExpanded(false);
+            this.shadowRoot.getElementById('avatar-toggle')?.focus();
+        }
+    };
+    #onToggleClick = () => {
+        this.#setExpanded(!this.#expanded);
+    };
 
     // Fires when an instance of the element is created or updated
     constructor() {
@@ -197,8 +217,9 @@ class Tracks extends HTMLElement {
 
     // Fires when an instance was inserted into the document
     connectedCallback() {
+        this.#expanded = this.hasAttribute('expanded');
         const cachevalue = new Date().toISOString().substring(0,10);
-        const basestyles = new URL('tracks.css', scriptURI);
+        const basestyles = new URL(tracksStylesheetURI.href);
         if (!basestyles.searchParams.get('cache')) {
             basestyles.searchParams.set('cache', cachevalue.toString());
         }
@@ -210,6 +231,8 @@ class Tracks extends HTMLElement {
     // Fires when an instance was removed from the document
     disconnectedCallback() {
         this.stopUpdating();
+        document.removeEventListener('pointerdown', this.#onDocumentPointerDown, true);
+        document.removeEventListener('keydown', this.#onDocumentKeyDown, true);
         if (this.shadowRoot) {
             this.shadowRoot.replaceChildren();
         }
@@ -369,30 +392,102 @@ class Tracks extends HTMLElement {
         this.#scrobbles.stop();
     }
 
+    #setExpanded(expanded) {
+        const nextExpanded = Boolean(expanded);
+        this.#expanded = nextExpanded;
+        this.toggleAttribute('expanded', nextExpanded);
+
+        const toggle = this.shadowRoot.getElementById('avatar-toggle');
+        const playlist = this.shadowRoot.getElementById('playlist');
+
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', String(nextExpanded));
+            toggle.setAttribute('aria-label', nextExpanded ? 'Collapse Last.fm tracks' : 'Expand Last.fm tracks');
+            toggle.setAttribute('title', nextExpanded ? 'Collapse Last.fm tracks' : 'Expand Last.fm tracks');
+        }
+
+        if (playlist) {
+            playlist.inert = !nextExpanded;
+        }
+
+        if (nextExpanded) {
+            this.#shouldAnimatePlaylist = true;
+            requestAnimationFrame(() => {
+                if (this.#expanded && this.#animatePlaylistIn()) {
+                    this.#shouldAnimatePlaylist = false;
+                }
+            });
+        }
+    }
+
+    #animatePlaylistIn() {
+        const rows = Array.from(this.shadowRoot.querySelectorAll('#playlist > div'));
+        if (!rows.length || globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return false;
+        }
+
+        rows.forEach((row, index) => {
+            row.animate(
+                [
+                    {
+                        opacity: 0,
+                        transform: 'translateX(-18px) translateY(8px)'
+                    },
+                    {
+                        opacity: 1,
+                        transform: 'translateX(0) translateY(0)'
+                    }
+                ],
+                {
+                    duration: 280,
+                    delay: Math.min(index * 32, 320),
+                    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    fill: 'both'
+                }
+            );
+        });
+
+        return true;
+    }
+
     #init() {
-        const skeleton = create('div', { 'class': 'wrap', 'lang': 'en-GB' },
-            create('div', { 'class': 'header' }, create('div', { 'class': 'content' },
-                    create('div', { 'class': 'avatarframe' },
-                        create('img', {
-                            'class': 'avatar',
-                            'alt': '',
-                            'src': '' // src to be set from script
-                        })),
+        const avatarToggle = create('button', {
+            'class': 'avatar-toggle',
+            'id': 'avatar-toggle',
+            'type': 'button',
+            'aria-expanded': 'false',
+            'aria-label': 'Expand Last.fm tracks',
+            'title': 'Expand Last.fm tracks'
+        },
+        create('img', {
+            'class': 'avatar',
+            'alt': '',
+            'src': ''
+        }));
+        const skeleton = create('div', { 'class': 'shell' },
+            avatarToggle,
+            create('div', { 'class': 'wrap', 'lang': 'en-GB' },
+                create('div', { 'class': 'header' }, create('div', { 'class': 'content' },
                     create('a', { 'href': 'https://www.last.fm/', 'class': 'lastfm', 'title': 'Last.fm' },
                         create('div', {}, '')
                     ),
                     create('div', { 'class': 'scrobblehistory' }, '')
-                )
-            ),
-            create('div', { 'id': 'playlist', 'inert': false }),
-            create('div', { 'class': 'footer' },
-                create('a', {
-                    href: 'https://github.com/StigNygaard/lastfm-widgets',
-                    title: 'Widget by Stig Nygaard. Use it on your homepage or blog, showing "scrobbles" from your own last.fm account...'
-                }, 'Tracks widget')
+                    )
+                ),
+                create('div', { 'id': 'playlist', 'inert': true }),
+                create('div', { 'class': 'footer' },
+                    create('a', {
+                        href: 'https://github.com/StigNygaard/lastfm-widgets',
+                        title: 'Widget by Stig Nygaard. Use it on your homepage or blog, showing "scrobbles" from your own last.fm account...'
+                    }, 'Tracks widget')
+                ),
             ),
         );
         this.shadowRoot.appendChild(skeleton);
+        avatarToggle.addEventListener('click', this.#onToggleClick);
+        document.addEventListener('pointerdown', this.#onDocumentPointerDown, true);
+        document.addEventListener('keydown', this.#onDocumentKeyDown, true);
+        this.#setExpanded(this.#expanded);
 
         // TODO: Maybe use the Intersection Observer API and not start until into view?:
         //  https://usefulangle.com/post/113/javascript-detecting-element-visible-during-scroll
@@ -874,6 +969,9 @@ class Tracks extends HTMLElement {
                 }
             );
             this.shadowRoot.getElementById('playlist').replaceChildren(...lines);
+            if (this.#expanded && this.#shouldAnimatePlaylist && this.#animatePlaylistIn()) {
+                this.#shouldAnimatePlaylist = false;
+            }
 
         } else {
             console.error('Error or aborted getting scrobbles!');

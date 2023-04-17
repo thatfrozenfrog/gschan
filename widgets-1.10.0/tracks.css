@@ -10,12 +10,13 @@
 
 :host {
   all: initial; /* In this webcomponent I don't want to inherit anything */
-  display: block; /* By default, custom elements are "inline" */
-  position: relative;
+  display: inline-block;
+  position: fixed;
+  inset-inline-end: max(16px, env(safe-area-inset-right));
+  inset-block-end: max(16px, env(safe-area-inset-bottom));
   contain: content; /* https://developer.chrome.com/blog/css-containment/ */
   container-type: inline-size;
-  overflow: clip;
-  max-height: 100%;
+  overflow: visible;
   opacity: 1;
   color: rgb(34 34 34); /* #222; */
   background-color: #eef2d3;
@@ -24,11 +25,19 @@
   line-height: 1.2 !important;
   font-family: tahoma, arial, helvetica, sans-serif !important;
   font-size: 12px !important;
+  vertical-align: top;
+  inline-size: 64px;
+  max-inline-size: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right) + 32px));
+  transition: inline-size 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2147483647;
 
   --transition-delay-in: 0s;
   --transition-time-in: 0.25s;
   --transition-delay-out: 0.4s;
   --transition-time-out: 0.5s;
+  --widget-expanded-width: 24rem;
+  --avatar-size: 56px;
+  --avatar-frame-size: 64px;
 
   --header-height: 8ex;
   --header-background: none;
@@ -51,26 +60,116 @@
   --icon-scrobbling: url(data:image/gif;base64,R0lGODlhDAAMAJECANvb28zMzP///wAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiNjlhZmFkNi05MTBkLTQ1OTEtOGM4Yi1jMjY2YjJlNzg4NTAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MUM2MDk2RkE5QTMwMTFFODhBOURFRjVDQzExMEFEMUYiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MUM2MDk2Rjk5QTMwMTFFODhBOURFRjVDQzExMEFEMUYiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo2Yzk4NWVmOS0xMDNmLTQ4MzctYTg3Yy01NjM3MzdlM2ZkZWEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6YjY5YWZhZDYtOTEwZC00NTkxLThjOGItYzI2NmIyZTc4ODUwIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBt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);
   --icon-github: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpFNTE3OEEyQTk5QTAxMUUyOUExNUJDMTA0NkE4OTA0RCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpFNTE3OEEyQjk5QTAxMUUyOUExNUJDMTA0NkE4OTA0RCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkU1MTc4QTI4OTlBMDExRTI5QTE1QkMxMDQ2QTg5MDREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkU1MTc4QTI5OTlBMDExRTI5QTE1QkMxMDQ2QTg5MDREIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+m4QGuQAAAyRJREFUeNrEl21ojWEYx895TDPbMNlBK46IUiNmPvHBSUjaqc0H8pF5+aDUKPEBqU2NhRQpX5Rv5jWlDIWlMCv7MMSWsWwmb3tpXub4XXWdPHvc9/Gc41nu+nedc7/8r/99PffLdYdDPsvkwsgkTBwsA/PADJCnzX2gHTwBt8Hl7p537/3whn04XoDZDcpBlk+9P8AFcAghzRkJwPF4zGGw0Y9QS0mAM2AnQj77FqCzrtcwB1Hk81SYojHK4DyGuQ6mhIIrBWB9Xm7ug/6B/nZrBHBegrkFxoVGpnwBMSLR9EcEcC4qb8pP14BWcBcUgewMnF3T34VqhWMFkThLJAalwnENOAKiHpJq1FZgI2AT6HZtuxZwR9GidSHtI30jOrbawxlVX78/AbNfhHlomEUJJI89O2MqeE79T8/nk8nMBm/dK576hZgmA3cp/R4l9/UeSxiHLVIlNm4nFfT0bxyuIj7LHRTKai+zdJobwMKzcZSJb0ePV5PKN+BqAAKE47UlMnERELMM3EdYP/yrd+XYb2mOiYBiQ8OQnoRBlXrl9JZix7D1pHTazu4MoyBcnYamqAjIMTR8G4FT8LuhLsexXYYjICBiqhQBvYb6fLZIJCjPypVvaOoVAW2WcasCnL2Nq82xHJNSqlCeFcDshaPK0twkAhosjZL31QYw+1rlMpWGMArl23SBsZZO58F2tlJXmjOXS+s4WGvpMiBJT/I2PInZ6lIs9/hBsNS1hS6BG0DSqmYEDRlCXQrmy50P1oDRKTSegmNbUsA0zDMwRhPJXeCE3vWLPQMvan6X8AgIa1vcR4AkGZkDR4ejJ1UHpsaVI0g2LInpOsNFUud1rhxSV+fzC9Woz2EZkWQuja7/B+jUrgtIMpy9YCW4n4K41YfzRneW5E1KJTe4B2Zq1Q5EHEtj4U3AfEzR5SVY4l7QYQPJdN2as7RKBF0BPZqqH4VgMAMBL8Byxr7y8zCZiDlnOcEKIPmUpgB5Z2ww5RdOiiRiNajUmWda5IG6WbhsyY2fx6m8gLcoJDJFkH219M3We1+cnda93pfycZpIJEL/s/wSYADmOAwAQgdpBAAAAABJRU5ErkJggg==);
 }
+:host([expanded]) {
+  inline-size: min(var(--widget-expanded-width), calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right) + 32px)));
+}
 :host([hidden]) {
   display: none;
+}
+
+.shell {
+  position: relative;
+  min-block-size: var(--avatar-frame-size);
+}
+
+.avatar-toggle {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  inline-size: var(--avatar-frame-size);
+  block-size: var(--avatar-frame-size);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid var(--yotsuba-border-strong);
+  background: linear-gradient(180deg, #f7f8e8 0, #e4ebc5 100%);
+  box-shadow: 0 10px 24px rgb(79 107 45 / 18%), inset 0 0 0 1px #f9f7ea;
+  transition:
+    top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.avatar-toggle:hover {
+  transform: scale(1.04);
+}
+
+.avatar-toggle:focus-visible {
+  outline: 2px solid var(--yotsuba-link-hover);
+  outline-offset: 3px;
+}
+
+.avatar-toggle .avatar {
+  inline-size: var(--avatar-size);
+  block-size: var(--avatar-size);
+  border-radius: 50%;
+  border: 1px solid var(--yotsuba-border-strong);
+  margin: 0;
+  padding: 0;
+  background-image: var(--header-avatar-background);
+  background-size: cover;
+  box-shadow: 0 0 0 1px #f8f5e4;
+}
+
+:host([expanded]) .avatar-toggle {
+  top: 6px;
+  right: 6px;
+  left: auto;
+  background: rgb(247 241 214 / 82%);
+  -webkit-backdrop-filter: blur(10px) brightness(108%);
+  backdrop-filter: blur(10px) brightness(108%);
+  box-shadow: 0 12px 24px rgb(31 47 16 / 22%);
 }
 
 .wrap::-webkit-scrollbar {
   -webkit-appearance: none; /* Non-standard, but currently needed for Safari versions older than 18.2 */
 }
 .wrap {
+  position: relative;
   margin: 0;
   padding: 0;
   border: 1px solid var(--yotsuba-border-strong);
-  max-height: inherit;
-  overflow-y: auto;
+  max-height: 0;
+  overflow-x: clip;
+  overflow-y: hidden;
   overscroll-behavior: contain; /* prevent scroll chaining from happening */
   scrollbar-width: none; /* Standard supported by Firefox 64+, Chrome/Chromium 121+ & Safari 18.2+ - https://caniuse.com/?search=scrollbar-width */
   background: linear-gradient(180deg, #f7f8e8 0, var(--yotsuba-page) 100%);
   box-shadow: inset 0 0 0 1px #f9f7ea;
+  border-radius: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.98);
+  transform-origin: bottom right;
+  transition:
+    max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 :host(.no-scroll) .wrap {
   overflow-y: clip;
+}
+:host([expanded]) .wrap {
+  max-height: min(calc(100vh - max(32px, env(safe-area-inset-top) + env(safe-area-inset-bottom) + 32px)), 42rem);
+  overflow-y: auto;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+@media (max-width: 640px) {
+  :host {
+    inset-inline-end: max(10px, env(safe-area-inset-right));
+    inset-block-end: max(10px, env(safe-area-inset-bottom));
+    --widget-expanded-width: min(24rem, calc(100vw - max(20px, env(safe-area-inset-left) + env(safe-area-inset-right) + 20px)));
+  }
 }
 
 a {
@@ -94,6 +193,8 @@ a:hover {
   background-repeat: no-repeat;
   background-size: cover;
   border-bottom: 1px solid var(--yotsuba-border-strong);
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 }
 :host(.dynaheader) .header {
   transform: translateY(-100%);
@@ -209,6 +310,7 @@ a:hover {
   margin-right: .4em;
   vertical-align: sub;
 }
+:host([expanded]) .footer,
 :host(:hover) .footer {
   transform: translateY(1px); /* 1px because Firefox sometimes mis-positions (css rounding error?) TODO investigate! */
   transition: transform var(--transition-time-in) ease var(--transition-delay-in);
