@@ -1,4 +1,4 @@
-import tripcode from 'tripcode';
+import tripcode from 'https://esm.sh/tripcode@4.0.0';
 
 /*
     (PLEASE DO NOT DELETE THIS HEADER OR CREDIT!)
