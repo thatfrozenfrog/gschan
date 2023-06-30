@@ -103,7 +103,7 @@ const v_formHtml = `
         <tbody>
             <tr>
                 <td class="postblock"><label for="entry.${s_nameId}">${s_nameFieldLabel}</label></td>
-                <td><input class="c-input c-nameInput" name="entry.${s_nameId}" id="entry.${s_nameId}" type="text" maxlength="${s_maxLengthName}" required></td>
+                <td><input class="c-input c-nameInput" name="entry.${s_nameId}" id="entry.${s_nameId}" type="text" maxlength="${s_maxLengthName}"></td>
             </tr>
             <tr>
                 <td class="postblock"><label for="entry.${s_websiteId}">${s_websiteFieldLabel}</label></td>
