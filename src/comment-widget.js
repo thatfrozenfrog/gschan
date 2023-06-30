@@ -189,6 +189,11 @@ if (s_commentsOpen) {
 
         c_submitButton.disabled = true;
 
+        const nameInput = document.getElementById(`entry.${s_nameId}`);
+        if (nameInput && !nameInput.value.trim()) {
+            nameInput.value = 'Cirno';
+        }
+
         const formData = new FormData(c_form);
         fetch(c_form.action, {
             method: 'POST',
