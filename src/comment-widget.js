@@ -29,6 +29,7 @@ const s_textId = '1000000003';
 const s_pageId = '1000000004';
 const s_replyId = '1000000005';
 const s_sheetId = 'YOUR_GOOGLE_SHEET_ID';
+const s_imageId = '1000000006';
 
 // The values below are necessary for accurate timestamps, I've filled it in with EST as an example
 const s_timezone = 7; // Your personal timezone (Example: UTC-5:00 is -5 here, UTC+10:30 would be 10.5)
@@ -58,8 +59,9 @@ const s_filteredWords = [ // Add words to filter by putting them in quotes and s
 const s_widgetTitle = 'example.com';
 const s_widgetBannerTitle = '/gs/ - gschan';
 const s_widgetBannerSubtitle = 'no way gschan built the xite himself o algo';
-const s_nameFieldLabel = 'Name (Optional)';
-const s_websiteFieldLabel = 'Website (Optional)';
+const s_nameFieldLabel = 'Name'; 
+const s_websiteFieldLabel = 'Website';
+const s_imageFieldLabel = 'Image URL';
 const s_textFieldLabel = '';
 const s_submitButtonLabel = 'Submit';
 const s_loadingText = 'Loading comments...';
@@ -114,6 +116,10 @@ const v_formHtml = `
                 <td><textarea class="c-input c-textInput" name="entry.${s_textId}" id="entry.${s_textId}" rows="4" cols="50" maxlength="${s_maxLength}" required></textarea></td>
             </tr>
             <tr>
+                <td class="postblock"><label for="entry.${s_imageId}">${s_imageFieldLabel}</label></td>
+                <td><input class="c-input c-imageInput" name="entry.${s_imageId}" id="entry.${s_imageId}" type="url" placeholder="https://example.com/image.jpg"></td>
+            </tr>
+            <tr>
                 <td class="postblock">Status</td>
                 <td>
                     <span id="c_replyingText" style="display:none"></span>
@@ -144,6 +150,7 @@ let v_amountOfPages = 1;
 let v_commentMax = 1;
 let v_commentMin = 1;
 let v_allComments = [];
+const v_imageMetadataCache = new Map();
 
 // Set up the word filter if applicable
 let v_filteredWords;
@@ -222,6 +229,7 @@ function getComments() {
         document.getElementById(`entry.${s_nameId}`).value = '';
         document.getElementById(`entry.${s_websiteId}`).value = '';
         document.getElementById(`entry.${s_textId}`).value = '';
+        document.getElementById(`entry.${s_imageId}`).value = '';
     }
 
     // Get the data (cache-busted to ensure new submissions appear)
@@ -250,6 +258,7 @@ function getComments() {
         let nameIdx = findColIndex((l) => l === 'name' || l.includes('name'));
         let websiteIdx = findColIndex((l) => l.includes('website') || l.includes('url'));
         let textIdx = findColIndex((l) => l === 'text' || l.includes('comment') || l.includes('message') || l.includes('content'));
+        let imageIdx = findColIndex((l) => l === 'image' || l.includes('image') || l.includes('file') || l.includes('picture') || l === norm(`entry.${s_imageId}`));
         let pageIdx = findColIndex((l) => l === 'page' || l.includes('page') || l.includes('path') || l === norm(`entry.${s_pageId}`));
         let replyIdx = findColIndex((l) => l === 'reply' || l.includes('reply') || l === norm(`entry.${s_replyId}`));
 
@@ -257,6 +266,7 @@ function getComments() {
         nameIdx = fallback(nameIdx) ?? (cols.length > 1 ? 1 : null);
         websiteIdx = fallback(websiteIdx) ?? (cols.length > 2 ? 2 : null);
         textIdx = fallback(textIdx) ?? (cols.length > 3 ? 3 : null);
+        imageIdx = fallback(imageIdx);
         // If page/reply aren't present, treat as single-page / no-reply behavior.
         pageIdx = fallback(pageIdx);
         replyIdx = fallback(replyIdx);
@@ -302,6 +312,7 @@ function getComments() {
                     comment.Name = getCellVal(nameIdx);
                     comment.Website = getCellVal(websiteIdx);
                     comment.Text = getCellVal(textIdx);
+                    if (imageIdx !== null) comment.Image = getCellVal(imageIdx);
                     if (pageIdx !== null) comment.Page = getCellVal(pageIdx);
                     if (replyIdx !== null) comment.Reply = getCellVal(replyIdx);
 
@@ -599,6 +610,7 @@ function normalizeComments(comments) {
 function createCanonicalComment(comment, seenPostNumbers) {
     const safeName = sanitizeText(comment.Name || 'Cirno');
     const safeWebsite = sanitizeWebsite(comment.Website);
+    const safeImage = sanitizeImageUrl(comment.Image);
     const safeText = sanitizeText(comment.Text || '');
     const safeTimestamp2 = String(comment.Timestamp2 || comment.Timestamp || Date.now());
     const timestamps = convertTimestamp(comment.Timestamp);
@@ -618,6 +630,7 @@ function createCanonicalComment(comment, seenPostNumbers) {
         Name: parsedName.name,
         Tripcode: parsedName.tripcode,
         Website: safeWebsite,
+        Image: safeImage,
         Text: safeText,
         Reply: String(comment.Reply || '').trim(),
         replyTarget: String(comment.Reply || '').trim(),
@@ -724,6 +737,7 @@ function renderCommentMarkup(comment, isOp) {
             <span class="c-postTools">${replyActionMarkup}</span>
             ${renderBacklinks(replyLinks)}
         </div>
+        ${renderAttachmentMarkup(comment)}
         <blockquote class="postMessage" id="m${comment.postNumber}">${renderMessage(comment.Text)}</blockquote>
     `;
 }
@@ -734,17 +748,26 @@ function bindPostControls(post, comment) {
         replyButton.addEventListener('click', () => openReply(comment.postNumber, comment.Name));
     }
 
+    const downloadButton = post.querySelector('.c-fileDownload');
+    if (downloadButton) {
+        downloadButton.addEventListener('click', () => {
+            window.alert('Not implemented.');
+        });
+    }
+
     const toggleButton = post.querySelector('.c-threadToggle');
     if (toggleButton) {
         toggleButton.addEventListener('click', () => expandReplies(String(comment.postNumber), toggleButton));
     }
+
+    hydrateImageAttachment(post, comment);
 }
 
 function renderNameMarkup(comment) {
     const siteMarkup = comment.Website
         ? `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(getWebsiteLabel(comment.Website))}</a> `
         : '';
-    const tripMarkup = comment.Tripcode ? `<span class="postertrip">${escapeHtml(comment.Tripcode)}</span>` : '';
+    const tripMarkup = comment.Tripcode ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>` : '';
     return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
 }
 
@@ -756,6 +779,32 @@ function renderBacklinks(replyNumbers) {
         .join('');
 
     return `<div class="backlink">${links}</div>`;
+}
+
+function renderAttachmentMarkup(comment) {
+    if (!comment.Image) {return ''}
+
+    const fileName = getImageFilename(comment.Image);
+    const searchLinks = createImageSearchLinks(comment.Image);
+
+    return `
+        <div class="file c-fileAttachment" id="f${comment.postNumber}">
+            <div class="fileInfo" id="fT${comment.postNumber}">
+                [<a href="${escapeAttribute(comment.Image)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a>]
+                [<button type="button" class="c-fileDownload" title="Download image">&#8681;</button>]
+                <span class="c-fileMeta" data-image-meta="${comment.postNumber}">(wait)</span>
+                <span class="c-fileSearchLinks">
+                    <a href="${escapeAttribute(searchLinks.google)}" target="_blank" rel="noreferrer">google</a>
+                    <a href="${escapeAttribute(searchLinks.yandex)}" target="_blank" rel="noreferrer">yandex</a>
+                    <a href="${escapeAttribute(searchLinks.iqdb)}" target="_blank" rel="noreferrer">iqdb</a>
+                    <span class="c-fileWait">wait</span>
+                </span>
+            </div>
+            <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(comment.Image)}" target="_blank" rel="noreferrer">
+                <img class="c-fileImage" src="${escapeAttribute(comment.Image)}" alt="${escapeAttribute(fileName)}" loading="lazy">
+            </a>
+        </div>
+    `;
 }
 
 function renderMessage(text) {
@@ -772,6 +821,140 @@ function renderMessage(text) {
             return escapeHtml(line).replace(/&gt;&gt;(\d+)/g, '<a href="#p$1" class="quotelink">&gt;&gt;$1</a>');
         })
         .join('<br />');
+}
+
+function hydrateImageAttachment(post, comment) {
+    if (!comment.Image) {return}
+
+    const image = post.querySelector('.c-fileImage');
+    const meta = post.querySelector(`[data-image-meta="${comment.postNumber}"]`);
+    if (!image || !meta) {return}
+
+    loadImageMetadata(comment.Image).then((details) => {
+        meta.textContent = `(${details.fileSizeText}, ${details.dimensionsText})`;
+
+        if (details.width > 0 && details.height > 0) {
+            image.width = details.width;
+            image.height = details.height;
+        }
+    }).catch(() => {
+        meta.textContent = '(?, ?)';
+    });
+}
+
+function loadImageMetadata(url) {
+    const normalizedUrl = String(url || '').trim();
+    if (!normalizedUrl) {
+        return Promise.resolve({
+            fileSizeText: '?',
+            dimensionsText: '?',
+            width: 0,
+            height: 0,
+        });
+    }
+
+    if (v_imageMetadataCache.has(normalizedUrl)) {
+        return v_imageMetadataCache.get(normalizedUrl);
+    }
+
+    const metadataPromise = Promise.allSettled([
+        readImageDimensions(normalizedUrl),
+        readImageFileSize(normalizedUrl),
+    ]).then(([dimensionResult, sizeResult]) => {
+        const dimensions = dimensionResult.status === 'fulfilled'
+            ? dimensionResult.value
+            : { width: 0, height: 0 };
+        const sizeBytes = sizeResult.status === 'fulfilled' ? sizeResult.value : null;
+
+        return {
+            fileSizeText: formatFileSize(sizeBytes),
+            dimensionsText: formatImageDimensions(dimensions.width, dimensions.height),
+            width: dimensions.width,
+            height: dimensions.height,
+        };
+    });
+
+    v_imageMetadataCache.set(normalizedUrl, metadataPromise);
+    return metadataPromise;
+}
+
+function readImageDimensions(url) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.loading = 'eager';
+        image.decoding = 'async';
+        image.referrerPolicy = 'no-referrer';
+        image.onload = () => {
+            resolve({
+                width: image.naturalWidth || 0,
+                height: image.naturalHeight || 0,
+            });
+        };
+        image.onerror = () => reject(new Error('Could not load image dimensions.'));
+        image.src = url;
+    });
+}
+
+function readImageFileSize(url) {
+    return fetch(url, {
+        method: 'HEAD',
+        mode: 'cors',
+        cache: 'force-cache',
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error('Could not load image size.');
+        }
+
+        const contentLength = Number(response.headers.get('content-length'));
+        if (!Number.isFinite(contentLength) || contentLength <= 0) {
+            throw new Error('Image size header missing.');
+        }
+
+        return contentLength;
+    });
+}
+
+function formatFileSize(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) {return '?'}
+    if (bytes < 1024) {return `${bytes} B`}
+
+    const units = ['KB', 'MB', 'GB'];
+    let size = bytes / 1024;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex += 1;
+    }
+
+    return `${size >= 100 ? size.toFixed(0) : size.toFixed(1)} ${units[unitIndex]}`;
+}
+
+function formatImageDimensions(width, height) {
+    if (!width || !height) {return '?'}
+    return `${width}x${height}`;
+}
+
+function createImageSearchLinks(url) {
+    const encodedUrl = encodeURIComponent(url);
+
+    return {
+        google: `https://lens.google.com/uploadbyurl?url=${encodedUrl}`,
+        yandex: `https://yandex.com/images/search?rpt=imageview&url=${encodedUrl}`,
+        iqdb: `https://iqdb.org/?url=${encodedUrl}`,
+    };
+}
+
+function getImageFilename(url) {
+    try {
+        const parsedUrl = new URL(url, window.location.href);
+        const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+        const lastSegment = pathSegments[pathSegments.length - 1] || 'image';
+        return decodeURIComponent(lastSegment);
+    } catch {
+        const parts = String(url || '').split('/').filter(Boolean);
+        return parts[parts.length - 1] || 'image';
+    }
 }
 
 function applyConfiguredTimezone(date) {
@@ -833,6 +1016,19 @@ function sanitizeWebsite(value) {
     if (!website) {return ''}
     if (/^https?:\/\//i.test(website)) {return website}
     return `https://${website}`;
+}
+
+function sanitizeImageUrl(value) {
+    const imageUrl = String(value || '').trim();
+    if (!imageUrl) {return ''}
+
+    try {
+        const parsedUrl = new URL(imageUrl, window.location.href);
+        if (!/^https?:$/i.test(parsedUrl.protocol)) {return ''}
+        return parsedUrl.href;
+    } catch {
+        return '';
+    }
 }
 
 function getWebsiteLabel(value) {
