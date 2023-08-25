@@ -148,6 +148,57 @@
   text-decoration: underline;
 }
 
+#c_widget .c-fileAttachment {
+  clear: left;
+}
+
+#c_widget .c-fileAttachment .fileInfo {
+  overflow-wrap: anywhere;
+}
+
+#c_widget .c-fileDownload,
+#c_widget .c-fileMeta,
+#c_widget .c-fileSearchLinks,
+#c_widget .c-fileWait {
+  margin-left: 4px;
+}
+
+#c_widget .c-fileDownload {
+  border: 0;
+  background: transparent;
+  color: #00e;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+#c_widget .c-fileDownload:hover {
+  color: red;
+}
+
+#c_widget .c-fileSearchLinks a + a {
+  margin-left: 4px;
+}
+
+#c_widget .c-fileWait {
+  color: #707070;
+}
+
+#c_widget .c-fileThumbLink {
+  display: inline-block;
+}
+
+#c_widget .c-fileImage {
+  display: block;
+  height: auto;
+  max-width: min(250px, calc(100vw - 72px));
+}
+
+#c_widget .reply .c-fileImage {
+  max-width: min(200px, calc(100vw - 96px));
+}
+
 #c_widget blockquote.postMessage {
   margin: 5px 10px 10px 22px;
   white-space: normal;
@@ -191,6 +242,11 @@
 
   #c_widget .c-replyContainer {
     margin-left: 0;
+  }
+
+  #c_widget .c-fileImage,
+  #c_widget .reply .c-fileImage {
+    max-width: min(100%, 220px);
   }
 
   #c_widget blockquote.postMessage {
