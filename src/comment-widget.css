@@ -90,6 +90,11 @@
 
 #c_widget .c-post {
   min-width: 0;
+
+}
+
+#c_widget .c-post.reply.post {
+  padding: 10px 20px;
 }
 
 #c_widget .c-postTools {
