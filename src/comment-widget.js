@@ -31,12 +31,8 @@ const s_replyId = '1000000005';
 const s_sheetId = 'YOUR_GOOGLE_SHEET_ID';
 const s_imageId = '1000000006';
 
-// The values below are necessary for accurate timestamps, I've filled it in with EST as an example
-const s_timezone = 7; // Your personal timezone (Example: UTC-5:00 is -5 here, UTC+10:30 would be 10.5)
-const s_daylightSavings = false; // If your personal timezone uses DST, set this to true
-// For the dates DST start and end where you live: [Month, Weekday, which number of that weekday, hour (24 hour time)]
-const s_dstStart = ['March', 'Sunday', 2, 2]; // Example shown is the second Sunday of March at 2:00 am
-const s_dstEnd = ['November', 'Sunday', 1, 2]; // Example shown is the first Sunday of November at 2:00 am
+// Timestamps are displayed in the visitor's local timezone automatically.
+const s_timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
 // Misc - Other random settings
 const s_commentsPerPage = 5; // The max amount of comments that can be displayed on one page, any number >= 1 (Replies not counted)
@@ -456,7 +452,7 @@ function convertTimestamp(timestamp) {
         const parts = inner.split(',').map(v => Number(v.trim()));
         if (parts.length >= 3 && parts.every(n => Number.isFinite(n))) {
             const date = new Date(parts[0], parts[1] ?? 0, parts[2] ?? 1, parts[3] ?? 0, parts[4] ?? 0, parts[5] ?? 0);
-            let offsetDate = applyConfiguredTimezone(date);
+            const offsetDate = applyConfiguredTimezone(date);
             return [formatLongTimestamp(offsetDate), formatYotsubaTimestamp(offsetDate), offsetDate];
         }
     }
@@ -464,76 +460,13 @@ function convertTimestamp(timestamp) {
     // Fallback: try parsing as a normal date string
     const parsed = new Date(text);
     if (!Number.isNaN(parsed.getTime())) {
-        let offsetDate = applyConfiguredTimezone(parsed);
+        const offsetDate = applyConfiguredTimezone(parsed);
         return [formatLongTimestamp(offsetDate), formatYotsubaTimestamp(offsetDate), offsetDate];
     }
 
     // Last resort: display raw value
     return [text, text, null];
 }
-// DST checker
-function isDST(date) {
-    const dstStart = [getMonthNum(s_dstStart[0]), getDayNum(s_dstStart[1]), s_dstStart[2], s_dstStart[3]];
-    const dstEnd = [getMonthNum(s_dstEnd[0]), getDayNum(s_dstEnd[1]), s_dstEnd[2], s_dstEnd[3]];
-
-    const year = date.getFullYear();
-    let startDate = new Date(year, dstStart[0], 1);
-    startDate = nthDayOfMonth(dstStart[1], dstStart[2], startDate, dstStart[3]).getTime();
-    let endDate = new Date(year, dstEnd[0], 1);
-    endDate = nthDayOfMonth(dstEnd[1], dstEnd[2], endDate, dstEnd[3]).getTime();
-    const time = date.getTime();
-
-    if (time >= startDate && time < endDate) {date.setHours(date.getHours() + 1)}
-    return date;
-}
-// Thank you to https://stackoverflow.com/questions/32192982/get-a-given-weekday-in-a-given-month-with-javascript for the below function
-function nthDayOfMonth(day, n, date, hour) {
-    var count = 0; 
-    var idate = new Date(date);                                                                                                       
-    idate.setDate(1);                                                                                                                 
-    while ((count) < n) {                                                                                                             
-        idate.setDate(idate.getDate() + 1);
-        if (idate.getDay() == day) {
-            count++;                                                                                                                      
-        }                                                                                                                               
-    }
-    idate.setHours(hour);                                                                                                                    
-    return idate;       
-}
-// Convert weekday and month names into numbers
-function getDayNum(day) {
-    let num;
-    switch (day.toLowerCase()) {
-        case 'sunday': num = 0; break;
-        case 'monday': num = 1; break;
-        case 'tuesday': num = 2; break;
-        case 'wednesday': num = 3; break;
-        case 'thursday': num = 4; break;
-        case 'friday': num = 5; break;
-        case 'saturday': num = 6; break;
-        default: num = 0; break;
-    }
-    return num;
-}
-function getMonthNum(month) {
-    let num;
-    switch (month.toLowerCase()) {
-        case 'january': num = 0; break;
-        case 'february': num = 1; break;
-        case 'march': num = 2; break;
-        case 'april': num = 3; break;
-        case 'may': num = 4; break;
-        case 'june': num = 5; break;
-        case 'july': num = 6; break;
-        case 'august': num = 7; break;
-        case 'september': num = 8; break;
-        case 'october': num = 9; break;
-        case 'november': num = 10; break;
-        case 'december': num = 11; break;
-    }
-    return num;
-}
-
 // Handle making replies
 function openReply(postNumber, name) {
     const targetValue = String(postNumber);
@@ -958,10 +891,8 @@ function getImageFilename(url) {
 }
 
 function applyConfiguredTimezone(date) {
-    const timezoneDiff = (s_timezone * 60 + date.getTimezoneOffset()) * -1;
-    let offsetDate = new Date(date.getTime() + timezoneDiff * 60 * 1000);
-    if (s_daylightSavings) {offsetDate = isDST(offsetDate)}
-    return offsetDate;
+    const timezoneDiffMinutes = date.getTimezoneOffset() - s_timezoneOffsetMinutes;
+    return new Date(date.getTime() + timezoneDiffMinutes * 60 * 1000);
 }
 
 function formatLongTimestamp(date) {
