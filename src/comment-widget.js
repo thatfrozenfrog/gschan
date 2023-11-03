@@ -661,12 +661,12 @@ function renderCommentMarkup(comment, isOp) {
         ${toggleMarkup ? `<span class="c-opToggleWrap">${toggleMarkup}</span>` : ''}
         <div class="postInfoM mobile" id="pim${comment.postNumber}">
             <span class="nameBlock">${nameMarkup}<br /></span>
-            <span class="dateTime postNum">${escapeHtml(comment.timestampShort)} <a href="#p${comment.postNumber}" title="Link to this post">No.</a><a href="#q${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
+            <span class="dateTime postNum">${escapeHtml(comment.timestampShort)} <a href="#p${comment.postNumber}" title="Link to this post">No.</a><a class="c-postReplyLink" href="#p${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
         </div>
         <div class="postInfo desktop" id="pi${comment.postNumber}">
             <span class="nameBlock">${nameMarkup}</span>
             <span class="dateTime" title="${escapeAttribute(comment.timestampLong)}">${escapeHtml(comment.timestampShort)}</span>
-            <span class="postNum desktop"><a href="#p${comment.postNumber}" title="Link to this post">No.</a><a href="#q${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
+            <span class="postNum desktop"><a href="#p${comment.postNumber}" title="Link to this post">No.</a><a class="c-postReplyLink" href="#p${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
             <span class="c-postTools">${replyActionMarkup}</span>
             ${renderBacklinks(replyLinks)}
         </div>
@@ -680,6 +680,14 @@ function bindPostControls(post, comment) {
     if (replyButton) {
         replyButton.addEventListener('click', () => openReply(comment.postNumber, comment.Name));
     }
+
+    const postReplyLinks = post.querySelectorAll('.c-postReplyLink');
+    postReplyLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            openReply(comment.postNumber, comment.Name);
+        });
+    });
 
     const downloadButton = post.querySelector('.c-fileDownload');
     if (downloadButton) {
