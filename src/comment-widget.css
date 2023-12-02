@@ -4,6 +4,9 @@
 }
 
 #c_widget {
+  --c-button-bg: #f0e0d6;
+  --c-button-border: #800;
+  --c-button-color: #800000;
   width: 100%;
 }
 
@@ -13,7 +16,27 @@
 }
 
 #c_widget .c-widget-banner {
+  position: relative;
   margin-bottom: 2px;
+  padding: 8px 180px 8px 8px;
+}
+
+#c_widget .c-themeConfig {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#c_widget .c-themeLabel {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+#c_widget .c-themeSelect {
+  max-width: 140px;
 }
 
 #c_widget .c-inputDiv {
@@ -54,18 +77,19 @@
 #c_widget #c_submitButton,
 #c_widget .c-replyButton,
 #c_widget .c-paginationButton {
-  border: 1px solid #800;
-  background: #f0e0d6;
-  color: #800000;
+  border: 1px solid var(--c-button-border);
+  background: var(--c-button-bg);
+  color: var(--c-button-color);
   cursor: pointer;
   font: inherit;
   padding: 3px 8px;
+  transition: filter 120ms ease;
 }
 
 #c_widget #c_submitButton:hover,
 #c_widget .c-replyButton:hover,
 #c_widget .c-paginationButton:hover {
-  color: red;
+  filter: brightness(1.08);
 }
 
 #c_widget #c_submitButton:disabled,
@@ -237,6 +261,17 @@
 @media (max-width: 700px) {
   #c_widget_wrap {
     margin: 18px auto 28px;
+  }
+
+  #c_widget .c-widget-banner {
+    padding-right: 8px;
+    padding-top: 36px;
+  }
+
+  #c_widget .c-themeConfig {
+    left: 8px;
+    right: auto;
+    top: 8px;
   }
 
   #c_widget .c-postTools {
