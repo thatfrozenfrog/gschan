@@ -20,7 +20,12 @@ import tripcode from 'https://esm.sh/tripcode@4.0.0';
 
 // The values in this section are REQUIRED for the widget to work! Keep them in quotes!
 const s_stylePath = new URL('./comment-widget.css', import.meta.url).href;
-const s_yotsubaPath = new URL('./yotsuba.css', import.meta.url).href;
+const s_themePaths = {
+    photon: new URL('./photon.css', import.meta.url).href,
+    tomorrow: new URL('./tomorrow.css', import.meta.url).href,
+    yotsuba: new URL('./yotsuba.css', import.meta.url).href,
+};
+const s_defaultTheme = 'tomorrow';
 //https://docs.google.com/forms/d/e/YOUR_GOOGLE_FORM_ID/viewform?usp=pp_url&entry.1000000001=name&entry.1000000002=web&entry.1000000003=text&entry.1000000004=ppage&entry.1000000005=repp
 const s_formId = 'YOUR_GOOGLE_FORM_ID';
 const s_nameId = '1000000001';
@@ -69,6 +74,7 @@ const s_replyingText = 'Replying to'; // The text that displays while the user i
 const s_expandRepliesText = 'Show Replies';
 const s_leftButtonText = '<<';
 const s_rightButtonText = '>>';
+const s_themeLabelText = 'Theme';
 
 /*
     DO NOT edit below this point unless you are confident you know what you're doing!
@@ -79,13 +85,21 @@ const s_rightButtonText = '>>';
 // Fix the URL parameters setting for Rarebit just in case
 if (s_fixRarebitIndexPage) {s_includeUrlParameters = true}
 
-ensureStylesheet(s_yotsubaPath, 'yotsuba');
+ensureStylesheet(getThemeHref(s_defaultTheme), 'board-theme');
 ensureStylesheet(s_stylePath, 'widget');
 
 // HTML Form
 const v_mainHtml = `
     <section class="c-widget-shell">
         <div class="boardBanner c-widget-banner">
+            <div class="c-themeConfig">
+                <label class="c-themeLabel" for="c_themeSelect">${s_themeLabelText}</label>
+                <select id="c_themeSelect" class="c-themeSelect" aria-label="Theme selector">
+                    <option value="photon">photon.css</option>
+                    <option value="tomorrow">tomorrow.css</option>
+                    <option value="yotsuba">yotsuba.css</option>
+                </select>
+            </div>
             <div class="boardTitle">${s_widgetBannerTitle}</div>
             <div class="boardSubtitle">${s_widgetBannerSubtitle}</div>
         </div>
@@ -105,7 +119,7 @@ const v_formHtml = `
             </tr>
             <tr>
                 <td class="postblock"><label for="entry.${s_websiteId}">${s_websiteFieldLabel}</label></td>
-                <td><input class="c-input c-websiteInput" name="entry.${s_websiteId}" id="entry.${s_websiteId}" type="url" pattern="https://.*"></td>
+                <td><input class="c-input c-websiteInput" name="entry.${s_websiteId}" id="entry.${s_websiteId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false"></td>
             </tr>
             <tr>
                 <td class="postblock"><label for="entry.${s_textId}">${s_textFieldLabel || 'Comment'}</label></td>
@@ -113,7 +127,7 @@ const v_formHtml = `
             </tr>
             <tr>
                 <td class="postblock"><label for="entry.${s_imageId}">${s_imageFieldLabel}</label></td>
-                <td><input class="c-input c-imageInput" name="entry.${s_imageId}" id="entry.${s_imageId}" type="url" placeholder="https://example.com/image.jpg"></td>
+                <td><input class="c-input c-imageInput" name="entry.${s_imageId}" id="entry.${s_imageId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/image.jpg"></td>
             </tr>
             <tr>
                 <td class="postblock">Status</td>
@@ -136,8 +150,18 @@ if (!c_widgetRoot) {
 
 c_widgetRoot.innerHTML = v_mainHtml;
 const c_form = document.getElementById('c_form');
+const c_themeSelect = document.getElementById('c_themeSelect');
 if (s_commentsOpen) {c_form.innerHTML = v_formHtml} 
 else {c_form.innerHTML = `<div class="globalMessage c-closedMessage">${s_closedCommentsText}</div>`}
+
+if (c_themeSelect) {
+    setBoardTheme(getStoredTheme());
+    c_themeSelect.addEventListener('change', (event) => {
+        setBoardTheme(event.target.value);
+    });
+} else {
+    syncWidgetThemeColors();
+}
 
 // Initialize misc things
 const c_container = document.getElementById('c_container');
@@ -530,6 +554,56 @@ function ensureStylesheet(href, marker) {
     linkTag.href = href;
     linkTag.setAttribute('data-comment-widget-style', marker);
     document.getElementsByTagName('head')[0].appendChild(linkTag);
+}
+
+function getThemeHref(themeName) {
+    return s_themePaths[themeName] || s_themePaths[s_defaultTheme];
+}
+
+function getStoredTheme() {
+    try {
+        const storedTheme = window.localStorage.getItem('comment-widget-theme');
+        if (storedTheme && s_themePaths[storedTheme]) {return storedTheme}
+    } catch {
+        // Ignore storage errors and use the configured default.
+    }
+
+    return s_defaultTheme;
+}
+
+function setBoardTheme(themeName) {
+    const resolvedTheme = s_themePaths[themeName] ? themeName : s_defaultTheme;
+    const themeLink = document.querySelector('link[data-comment-widget-style="board-theme"]');
+    if (themeLink) {
+        themeLink.addEventListener('load', syncWidgetThemeColors, { once: true });
+        themeLink.href = getThemeHref(resolvedTheme);
+    }
+
+    if (c_themeSelect && c_themeSelect.value !== resolvedTheme) {
+        c_themeSelect.value = resolvedTheme;
+    }
+
+    try {
+        window.localStorage.setItem('comment-widget-theme', resolvedTheme);
+    } catch {
+        // Ignore storage errors.
+    }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(syncWidgetThemeColors);
+    });
+}
+
+function syncWidgetThemeColors() {
+    if (!c_widgetRoot || !c_form) {return}
+
+    const sampleInput = c_form.querySelector('.c-nameInput, .c-textInput, input[type="text"], textarea');
+    if (!sampleInput) {return}
+
+    const inputStyles = window.getComputedStyle(sampleInput);
+    c_widgetRoot.style.setProperty('--c-button-bg', inputStyles.backgroundColor || '#f0e0d6');
+    c_widgetRoot.style.setProperty('--c-button-border', inputStyles.borderTopColor || '#800');
+    c_widgetRoot.style.setProperty('--c-button-color', inputStyles.color || '#800000');
 }
 
 function normalizeComments(comments) {
