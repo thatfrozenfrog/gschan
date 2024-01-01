@@ -183,6 +183,7 @@ if (s_wordFilterOn) {
 let c_submitButton;
 if (s_commentsOpen) {c_submitButton = document.getElementById('c_submitButton')}
 else {c_submitButton = document.createElement('button')}
+const c_textInput = s_commentsOpen ? document.getElementById(`entry.${s_textId}`) : null;
 
 // Add invisible page input to document
 let v_pagePath = window.location.pathname;
@@ -250,6 +251,7 @@ function getComments() {
         document.getElementById(`entry.${s_websiteId}`).value = '';
         document.getElementById(`entry.${s_textId}`).value = '';
         document.getElementById(`entry.${s_imageId}`).value = '';
+        if (c_textInput) {c_textInput.dataset.replyPrefix = ''}
     }
 
     // Get the data (cache-busted to ensure new submissions appear)
@@ -381,6 +383,7 @@ function displayComments(comments) {
     comments.forEach((comment) => {
         comment.replies = [];
         comment.parentPostNumber = null;
+        comment.depth = 0;
     });
 
     const byReference = new Map();
@@ -402,6 +405,8 @@ function displayComments(comments) {
             roots.push(comment);
         }
     });
+
+    roots.forEach((root) => assignThreadDepth(root, 0));
 
     roots.sort((a, b) => b.timestampMs - a.timestampMs);
     comments.forEach((comment) => {
@@ -494,20 +499,28 @@ function convertTimestamp(timestamp) {
 // Handle making replies
 function openReply(postNumber, name) {
     const targetValue = String(postNumber);
+    const replyPrefix = `>>${targetValue}\n`;
 
     if (c_replyInput.value !== targetValue) {
         c_replyingText.textContent = `${s_replyingText} No.${targetValue} (${name})`;
         c_replyInput.value = targetValue;
         c_replyingText.style.display = 'block';
+        setReplyPrefix(replyPrefix);
     } else {
         c_replyingText.textContent = '';
         c_replyInput.value = '';
         c_replyingText.style.display = 'none';
+        setReplyPrefix('');
     }
 
     const inputDiv = document.getElementById('c_inputDiv');
     if (inputDiv) {
         inputDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (c_textInput) {
+        c_textInput.focus();
+        c_textInput.setSelectionRange(c_textInput.value.length, c_textInput.value.length);
     }
 }
 
@@ -517,13 +530,10 @@ function expandReplies(id, toggleButton) {
     if (!targetDiv) {return}
 
     const isCollapsed = targetDiv.style.display == 'none';
-    targetDiv.style.display = isCollapsed ? 'block' : 'none';
+    setRepliesExpanded(id, isCollapsed);
 
     if (toggleButton) {
-        const willCollapse = !isCollapsed;
-        toggleButton.textContent = willCollapse ? '[+]' : '[-]';
-        toggleButton.setAttribute('aria-expanded', willCollapse ? 'false' : 'true');
-        toggleButton.title = willCollapse ? 'Expand thread' : 'Collapse thread';
+        updateToggleButton(toggleButton, isCollapsed);
     }
 }
 
@@ -647,6 +657,7 @@ function createCanonicalComment(comment, seenPostNumbers) {
         timestampLong: timestamps[0],
         timestampMs: timestamps[2] instanceof Date ? timestamps[2].getTime() : Date.now(),
         replies: [],
+        depth: 0,
         parentPostNumber: null,
     };
 }
@@ -687,6 +698,7 @@ function createReplyNode(comment) {
     const container = document.createElement('div');
     container.className = 'postContainer replyContainer c-postContainer';
     container.id = `pc${comment.postNumber}`;
+    container.style.setProperty('--c-reply-indent-level', String(Math.max(0, comment.depth - 1)));
 
     const sideArrows = document.createElement('div');
     sideArrows.className = 'sideArrows';
@@ -712,6 +724,7 @@ function appendReplyChildren(parentNode, comment) {
         const replyContainer = document.createElement('div');
         replyContainer.id = `${comment.postNumber}-replies`;
         replyContainer.className = 'c-replyContainer';
+        replyContainer.style.display = shouldCollapseReplies(comment) ? 'none' : 'grid';
 
         for (let i = 0; i < replies.length; i++) {
             replyContainer.appendChild(createCommentNode(replies[i]));
@@ -724,11 +737,12 @@ function appendReplyChildren(parentNode, comment) {
 function renderCommentMarkup(comment, isOp) {
     const replyLinks = comment.replies.map((reply) => reply.postNumber);
     const nameMarkup = renderNameMarkup(comment);
+    const repliesCollapsed = shouldCollapseReplies(comment);
     const replyActionMarkup = s_commentsOpen
         ? `<span>[<button type="button" class="replylink c-headerReply" data-post-number="${comment.postNumber}">${s_replyButtonText}</button>]</span>`
         : '';
-    const toggleMarkup = isOp && comment.replies.length
-        ? `<button type="button" class="c-threadToggle" data-post-number="${comment.postNumber}" aria-expanded="true" title="Collapse thread">[-]</button>`
+    const toggleMarkup = comment.replies.length
+        ? `<button type="button" class="c-threadToggle" data-post-number="${comment.postNumber}" aria-controls="${comment.postNumber}-replies" aria-expanded="${repliesCollapsed ? 'false' : 'true'}" title="${repliesCollapsed ? 'Expand thread' : 'Collapse thread'}">${repliesCollapsed ? '[+]' : '[-]'}</button>`
         : '';
 
     return `
@@ -774,6 +788,17 @@ function bindPostControls(post, comment) {
     if (toggleButton) {
         toggleButton.addEventListener('click', () => expandReplies(String(comment.postNumber), toggleButton));
     }
+
+    const quoteLinks = post.querySelectorAll('.quotelink');
+    quoteLinks.forEach((link) => {
+        const targetPostNumber = getQuotedPostNumber(link);
+        if (!targetPostNumber) {return}
+
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            navigateToPost(targetPostNumber);
+        });
+    });
 
     hydrateImageAttachment(post, comment);
 }
@@ -826,16 +851,222 @@ function renderMessage(text) {
     let filteredText = sanitizeText(text || '');
     if (s_wordFilterOn) {filteredText = filteredText.replace(v_filteredWords, s_filterReplacement)}
 
-    return filteredText
-        .split('\n')
-        .map((line) => {
-            if (!line) {return ''}
-            if (line.startsWith('>') && !line.startsWith('>>')) {
-                return `<span class="quote">${escapeHtml(line)}</span>`;
+    const lines = filteredText.split('\n');
+    const renderedLines = [];
+    let codeBlock = null;
+
+    for (let index = 0; index < lines.length; index++) {
+        const line = lines[index];
+
+        if (codeBlock) {
+            if (/^\[\/code\]$/i.test(line.trim())) {
+                renderedLines.push(renderCodeBlock(codeBlock.language, codeBlock.lines));
+                codeBlock = null;
+            } else {
+                codeBlock.lines.push(line);
             }
-            return escapeHtml(line).replace(/&gt;&gt;(\d+)/g, '<a href="#p$1" class="quotelink">&gt;&gt;$1</a>');
-        })
-        .join('<br />');
+            continue;
+        }
+
+        const codeStart = line.match(/^\[code\](.*)$/i);
+        if (codeStart) {
+            codeBlock = {
+                language: codeStart[1].trim(),
+                lines: [],
+            };
+            continue;
+        }
+
+        renderedLines.push(renderStyledLine(line));
+    }
+
+    if (codeBlock) {
+        renderedLines.push(renderCodeBlock(codeBlock.language, codeBlock.lines));
+    }
+
+    return renderedLines.join('<br />');
+}
+
+function renderStyledLine(line) {
+    if (!line) {return ''}
+
+    const titleMatch = line.match(/^==(.+)==$/);
+    if (titleMatch) {
+        return `<span class="title">${renderInlineMarkup(titleMatch[1].trim())}</span>`;
+    }
+
+    const renderedLine = renderInlineMarkup(line);
+    if (line.startsWith('>')) {
+        return `<span class="quote greentext">${renderedLine}</span>`;
+    }
+    if (line.startsWith('<')) {
+        return `<span class="pinktext">${renderedLine}</span>`;
+    }
+
+    return renderedLine;
+}
+
+function renderInlineMarkup(line) {
+    const placeholders = [];
+    const stash = (html) => {
+        const token = `\uE000${placeholders.length}\uE001`;
+        placeholders.push(html);
+        return token;
+    };
+
+    let renderedLine = escapeHtml(line);
+
+    renderedLine = renderedLine.replace(/`([^`]+)`/g, (_, content) => {
+        return stash(`<code class="c-inlineCode">${content}</code>`);
+    });
+
+    renderedLine = renderedLine.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)(?:\(([^)]+)\))?/g, (_, label, url, titleText) => {
+        const titleAttribute = titleText ? ` title="${escapeAttribute(titleText)}"` : '';
+        return stash(`<a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer"${titleAttribute}>${label}</a>`);
+    });
+
+    renderedLine = renderedLine.replace(/&gt;&gt;&gt;\/([a-z0-9_]+)\/(\d+)?/gi, (_, board, postId) => {
+        const suffix = postId ? `${board}/${postId}` : `${board}/`;
+        return stash(`<span class="quotelink c-boardLink">&gt;&gt;&gt;/${escapeHtml(suffix)}</span>`);
+    });
+
+    renderedLine = renderedLine.replace(/&gt;&gt;(\d+)/g, (_, postId) => {
+        return stash(`<a href="#p${postId}" class="quotelink">&gt;&gt;${postId}</a>`);
+    });
+
+    renderedLine = renderedLine.replace(/https?:\/\/[^\s<]+/g, (url) => {
+        return stash(`<a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${url}</a>`);
+    });
+
+    renderedLine = renderedLine.replace(/##([0-9+\-*/%().\s]{1,80})(?=$|[^0-9+\-*/%().])/g, (match, expression) => {
+        const trimmedExpression = expression.trim();
+        const result = evaluateInlineMath(trimmedExpression);
+        if (result === null) {return match}
+        return stash(`<span class="c-math">(##${escapeHtml(trimmedExpression)}) = ${escapeHtml(String(result))}</span>`);
+    });
+
+    renderedLine = renderedLine.replace(/&quot;&quot;(.+?)&quot;&quot;/g, '<span class="bold">$1</span>');
+    renderedLine = renderedLine.replace(/''(.+?)''/g, '<em>$1</em>');
+    renderedLine = renderedLine.replace(/__([^_]+?)__/g, '<span class="c-underline">$1</span>');
+    renderedLine = renderedLine.replace(/~~(.+?)~~/g, '<s>$1</s>');
+    renderedLine = renderedLine.replace(/\*\*(.+?)\*\*/g, '<span class="spoiler">$1</span>');
+    renderedLine = renderedLine.replace(/\(\(\((.+?)\)\)\)/g, (_, detectedText) => {
+        return `<span class="detected">((( ${detectedText.trim()} )))</span>`;
+    });
+
+    return renderedLine.replace(/\uE000(\d+)\uE001/g, (_, index) => placeholders[Number(index)] || '');
+}
+
+function renderCodeBlock(language, lines) {
+    const trimmedLanguage = sanitizeText(language).trim();
+    const codeText = lines.join('\n');
+    const languageLabel = trimmedLanguage
+        ? `<div class="c-codeBlockLabel">${escapeHtml(trimmedLanguage)}</div>`
+        : '';
+
+    return `<div class="c-codeBlockWrap">${languageLabel}<pre class="c-codeBlock"><code>${escapeHtml(codeText)}</code></pre></div>`;
+}
+
+function evaluateInlineMath(expression) {
+    if (!expression) {return null}
+    if (!/^[0-9+\-*/%().\s]+$/.test(expression)) {return null}
+
+    try {
+        const result = Function(`"use strict"; return (${expression});`)();
+        if (!Number.isFinite(result)) {return null}
+        return Number.isInteger(result) ? result : Number(result.toFixed(6));
+    } catch {
+        return null;
+    }
+}
+
+function setReplyPrefix(nextPrefix) {
+    if (!c_textInput) {return}
+
+    const currentPrefix = c_textInput.dataset.replyPrefix || '';
+    if (currentPrefix && c_textInput.value.startsWith(currentPrefix)) {
+        c_textInput.value = c_textInput.value.slice(currentPrefix.length);
+    }
+
+    if (nextPrefix) {
+        c_textInput.value = `${nextPrefix}${c_textInput.value}`;
+    }
+
+    c_textInput.dataset.replyPrefix = nextPrefix;
+}
+
+function assignThreadDepth(comment, depth) {
+    comment.depth = depth;
+
+    const replies = comment.replies || [];
+    replies.forEach((reply) => assignThreadDepth(reply, depth + 1));
+}
+
+function shouldCollapseReplies(comment) {
+    if (!comment.replies || !comment.replies.length) {return false}
+    return comment.depth > 0;
+}
+
+function setRepliesExpanded(id, isExpanded) {
+    const targetDiv = document.getElementById(`${id}-replies`);
+    if (!targetDiv) {return}
+
+    targetDiv.style.display = isExpanded ? 'grid' : 'none';
+
+    const toggleButtons = document.querySelectorAll(`.c-threadToggle[data-post-number="${id}"]`);
+    toggleButtons.forEach((button) => updateToggleButton(button, isExpanded));
+}
+
+function updateToggleButton(toggleButton, isExpanded) {
+    toggleButton.textContent = isExpanded ? '[-]' : '[+]';
+    toggleButton.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    toggleButton.title = isExpanded ? 'Collapse thread' : 'Expand thread';
+}
+
+function getQuotedPostNumber(link) {
+    const href = String(link.getAttribute('href') || '');
+    const hrefMatch = href.match(/#p(\d+)/);
+    if (hrefMatch && hrefMatch[1]) {return hrefMatch[1]}
+
+    const textMatch = String(link.textContent || '').match(/>>(\d+)/);
+    return textMatch && textMatch[1] ? textMatch[1] : null;
+}
+
+function navigateToPost(postNumber) {
+    const targetPost = document.getElementById(`p${postNumber}`);
+    if (!targetPost) {
+        window.location.hash = `p${postNumber}`;
+        return;
+    }
+
+    expandReplyAncestors(targetPost);
+    targetPost.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    flashPost(targetPost);
+
+    if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState(null, '', `#p${postNumber}`);
+    } else {
+        window.location.hash = `p${postNumber}`;
+    }
+}
+
+function expandReplyAncestors(targetPost) {
+    let currentNode = targetPost.parentElement;
+
+    while (currentNode) {
+        if (currentNode.classList && currentNode.classList.contains('c-replyContainer')) {
+            const ownerId = currentNode.id.replace(/-replies$/, '');
+            setRepliesExpanded(ownerId, true);
+        }
+
+        currentNode = currentNode.parentElement;
+    }
+}
+
+function flashPost(targetPost) {
+    targetPost.classList.remove('c-postFlash');
+    void targetPost.offsetWidth;
+    targetPost.classList.add('c-postFlash');
 }
 
 function hydrateImageAttachment(post, comment) {
