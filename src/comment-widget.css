@@ -237,7 +237,8 @@
 #c_widget .c-fileDownload,
 #c_widget .c-fileMeta,
 #c_widget .c-fileSearchLinks,
-#c_widget .c-fileWait {
+#c_widget .c-fileWait,
+#c_widget .c-imgops {
   margin-left: 4px;
 }
 
@@ -248,10 +249,24 @@
   cursor: pointer;
   font: inherit;
   padding: 0;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 #c_widget .c-fileDownload:hover {
+  color: red;
+}
+
+#c_widget .c-fileHide {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: #00e;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#c_widget .c-fileHide:hover {
   color: red;
 }
 
@@ -265,6 +280,34 @@
 
 #c_widget .c-fileThumbLink {
   display: inline-block;
+}
+
+#c_widget .c-collageGrid {
+  clear: left;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 5px 0 10px;
+}
+
+#c_widget .c-collageCell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+#c_widget .c-collageCellInfo {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  margin-bottom: 3px;
+}
+
+#c_widget .c-collageImage {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
 }
 
 #c_widget .c-fileImage {
