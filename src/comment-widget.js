@@ -1,4 +1,5 @@
-import tripcode from 'https://esm.sh/tripcode@4.0.0';
+import generateTripcode from 'https://esm.sh/tripcode@4.0.0';
+import adminTripcodes from './admin.js';
 
 /*
     (PLEASE DO NOT DELETE THIS HEADER OR CREDIT!)
@@ -26,6 +27,7 @@ const s_themePaths = {
     yotsuba: new URL('./yotsuba.css', import.meta.url).href,
 };
 const s_defaultTheme = 'tomorrow';
+const s_adminIconPath = '/img/admin.gif';
 //https://docs.google.com/forms/d/e/YOUR_GOOGLE_FORM_ID/viewform?usp=pp_url&entry.1000000001=name&entry.1000000002=web&entry.1000000003=text&entry.1000000004=ppage&entry.1000000005=repp
 const s_formId = 'YOUR_GOOGLE_FORM_ID';
 const s_nameId = '1000000001';
@@ -646,6 +648,7 @@ function createCanonicalComment(comment, seenPostNumbers) {
         Timestamp2: safeTimestamp2,
         Name: parsedName.name,
         Tripcode: parsedName.tripcode,
+        IsAdmin: isAdminTripcode(parsedName.tripcode),
         Website: safeWebsite,
         Image: safeImage,
         Text: safeText,
@@ -808,7 +811,10 @@ function renderNameMarkup(comment) {
         ? `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(getWebsiteLabel(comment.Website))}</a> `
         : '';
     const tripMarkup = comment.Tripcode ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>` : '';
-    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
+    const adminMarkup = comment.IsAdmin
+        ? `<span class="c-adminBadge" ><img class="c-adminBadgeIcon" src="${escapeAttribute(s_adminIconPath)}" alt="Admin icon" width="14" height="14"><span class="c-adminBadgeText">## ADMIN</span></span>`
+        : '';
+    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}${adminMarkup}`;
 }
 
 function renderBacklinks(replyNumbers) {
@@ -1247,12 +1253,19 @@ function parseNameField(value) {
     const [rawName, ...tripParts] = String(value || '').split('#');
     const visibleName = rawName.trim() || 'Cirno';
     const tripSecret = tripParts.join('#').trim().slice(0, 8);
-    const computedTripcode = tripSecret ? tripcode(tripSecret) : '';
+    const computedTripcode = tripSecret ? generateTripcode(tripSecret) : '';
 
     return {
         name: visibleName,
         tripcode: computedTripcode,
     };
+}
+
+function isAdminTripcode(value) {
+    const normalizedTripcode = String(value || '').trim();
+    if (!normalizedTripcode) {return false}
+
+    return adminTripcodes.some((adminTripcode) => String(adminTripcode || '').trim() === normalizedTripcode);
 }
 
 function sanitizeWebsite(value) {
