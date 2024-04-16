@@ -129,7 +129,7 @@ const v_formHtml = `
             </tr>
             <tr>
                 <td class="postblock"><label for="entry.${s_imageId}">${s_imageFieldLabel}</label></td>
-                <td><input class="c-input c-imageInput" name="entry.${s_imageId}" id="entry.${s_imageId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/image.jpg"></td>
+                <td><input class="c-input c-imageInput" name="entry.${s_imageId}" id="entry.${s_imageId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/image.jpg or [url1][url2]"></td>
             </tr>
             <tr>
                 <td class="postblock">Status</td>
@@ -629,7 +629,7 @@ function normalizeComments(comments) {
 function createCanonicalComment(comment, seenPostNumbers) {
     const safeName = sanitizeText(comment.Name || 'Cirno');
     const safeWebsite = sanitizeWebsite(comment.Website);
-    const safeImage = sanitizeImageUrl(comment.Image);
+    const safeImages = sanitizeImageUrls(comment.Image);
     const safeText = sanitizeText(comment.Text || '');
     const safeTimestamp2 = String(comment.Timestamp2 || comment.Timestamp || Date.now());
     const timestamps = convertTimestamp(comment.Timestamp);
@@ -650,7 +650,7 @@ function createCanonicalComment(comment, seenPostNumbers) {
         Tripcode: parsedName.tripcode,
         IsAdmin: isAdminTripcode(parsedName.tripcode),
         Website: safeWebsite,
-        Image: safeImage,
+        Images: safeImages,
         Text: safeText,
         Reply: String(comment.Reply || '').trim(),
         replyTarget: String(comment.Reply || '').trim(),
@@ -748,7 +748,11 @@ function renderCommentMarkup(comment, isOp) {
         ? `<button type="button" class="c-threadToggle" data-post-number="${comment.postNumber}" aria-controls="${comment.postNumber}-replies" aria-expanded="${repliesCollapsed ? 'false' : 'true'}" title="${repliesCollapsed ? 'Expand thread' : 'Collapse thread'}">${repliesCollapsed ? '[+]' : '[-]'}</button>`
         : '';
 
+    const isCollage = (comment.Images || []).length >= 2;
+    const attachmentMarkup = renderAttachmentMarkup(comment);
+
     return `
+        ${isCollage ? attachmentMarkup : ''}
         ${toggleMarkup ? `<span class="c-opToggleWrap">${toggleMarkup}</span>` : ''}
         <div class="postInfoM mobile" id="pim${comment.postNumber}">
             <span class="nameBlock">${nameMarkup}<br /></span>
@@ -761,7 +765,7 @@ function renderCommentMarkup(comment, isOp) {
             <span class="c-postTools">${replyActionMarkup}</span>
             ${renderBacklinks(replyLinks)}
         </div>
-        ${renderAttachmentMarkup(comment)}
+        ${isCollage ? '' : attachmentMarkup}
         <blockquote class="postMessage" id="m${comment.postNumber}">${renderMessage(comment.Text)}</blockquote>
     `;
 }
@@ -780,12 +784,17 @@ function bindPostControls(post, comment) {
         });
     });
 
-    const downloadButton = post.querySelector('.c-fileDownload');
-    if (downloadButton) {
-        downloadButton.addEventListener('click', () => {
-            window.alert('Not implemented.');
+    const hideButtons = post.querySelectorAll('.c-fileHide');
+    hideButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            const target = document.getElementById(targetId);
+            if (!target) {return}
+            const isHidden = target.style.display === 'none';
+            target.style.display = isHidden ? '' : 'none';
+            btn.textContent = isHidden ? 'hide' : 'show';
         });
-    }
+    });
 
     const toggleButton = post.querySelector('.c-threadToggle');
     if (toggleButton) {
@@ -828,27 +837,51 @@ function renderBacklinks(replyNumbers) {
 }
 
 function renderAttachmentMarkup(comment) {
-    if (!comment.Image) {return ''}
+    const images = comment.Images || [];
+    if (images.length === 0) {return ''}
 
-    const fileName = getImageFilename(comment.Image);
-    const searchLinks = createImageSearchLinks(comment.Image);
+    if (images.length === 1) {
+        return renderSingleAttachment(comment, images[0], 0);
+    }
+
+    const cells = images.map((url, i) => renderCollageCell(comment, url, i)).join('');
+    return `<div class="c-collageGrid" id="f${comment.postNumber}">${cells}</div>`;
+}
+
+function renderSingleAttachment(comment, url, index) {
+    const fileName = getImageFilename(url);
+    const metaId = `${comment.postNumber}-${index}`;
+    const imgopsUrl = `https://imgops.com/${url}`;
 
     return `
         <div class="file c-fileAttachment" id="f${comment.postNumber}">
             <div class="fileInfo" id="fT${comment.postNumber}">
-                [<a href="${escapeAttribute(comment.Image)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a>]
-                [<button type="button" class="c-fileDownload" title="Download image">&#8681;</button>]
-                <span class="c-fileMeta" data-image-meta="${comment.postNumber}">(wait)</span>
-                <span class="c-fileSearchLinks">
-                    <a href="${escapeAttribute(searchLinks.google)}" target="_blank" rel="noreferrer">google</a>
-                    <a href="${escapeAttribute(searchLinks.yandex)}" target="_blank" rel="noreferrer">yandex</a>
-                    <a href="${escapeAttribute(searchLinks.iqdb)}" target="_blank" rel="noreferrer">iqdb</a>
-                    <span class="c-fileWait">wait</span>
-                </span>
+                File (<button type="button" class="c-fileHide" data-target="fi${comment.postNumber}-${index}">hide</button>): <a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a> <a href="${escapeAttribute(url)}" class="c-fileDownload" target="_blank" rel="noreferrer" title="Download image">&#8681;</a> <span class="c-fileMeta" data-image-meta="${metaId}">(wait)</span> <a href="${escapeAttribute(imgopsUrl)}" class="c-imgops" target="_blank" rel="noreferrer">ImgOps</a>
             </div>
-            <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(comment.Image)}" target="_blank" rel="noreferrer">
-                <img class="c-fileImage" src="${escapeAttribute(comment.Image)}" alt="${escapeAttribute(fileName)}" loading="lazy">
-            </a>
+            <div id="fi${comment.postNumber}-${index}">
+                <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">
+                    <img class="c-fileImage" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+function renderCollageCell(comment, url, index) {
+    const fileName = getImageFilename(url);
+    const metaId = `${comment.postNumber}-${index}`;
+    const imgopsUrl = `https://imgops.com/${url}`;
+
+    return `
+        <div class="c-collageCell">
+            <div class="c-collageCellInfo">
+                File (<button type="button" class="c-fileHide" data-target="cfi${comment.postNumber}-${index}">hide</button>): <a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a> <a href="${escapeAttribute(url)}" class="c-fileDownload" target="_blank" rel="noreferrer" title="Download image">&#8681;</a> <span class="c-fileMeta" data-image-meta="${metaId}">(wait)</span> <a href="${escapeAttribute(imgopsUrl)}" class="c-imgops" target="_blank" rel="noreferrer">ImgOps</a>
+            </div>
+            <div id="cfi${comment.postNumber}-${index}">
+                <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">
+                    <img class="c-fileImage c-collageImage" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">
+                </a>
+            </div>
         </div>
     `;
 }
@@ -1076,21 +1109,27 @@ function flashPost(targetPost) {
 }
 
 function hydrateImageAttachment(post, comment) {
-    if (!comment.Image) {return}
+    const images = comment.Images || [];
+    if (images.length === 0) {return}
 
-    const image = post.querySelector('.c-fileImage');
-    const meta = post.querySelector(`[data-image-meta="${comment.postNumber}"]`);
-    if (!image || !meta) {return}
+    images.forEach((url, index) => {
+        const metaId = `${comment.postNumber}-${index}`;
+        const meta = post.querySelector(`[data-image-meta="${metaId}"]`);
+        if (!meta) {return}
 
-    loadImageMetadata(comment.Image).then((details) => {
-        meta.textContent = `(${details.fileSizeText}, ${details.dimensionsText})`;
+        loadImageMetadata(url).then((details) => {
+            meta.textContent = `(${details.fileSizeText}, ${details.dimensionsText})`;
 
-        if (details.width > 0 && details.height > 0) {
-            image.width = details.width;
-            image.height = details.height;
-        }
-    }).catch(() => {
-        meta.textContent = '(?, ?)';
+            if (images.length === 1 && details.width > 0 && details.height > 0) {
+                const img = post.querySelector('.c-fileImage');
+                if (img) {
+                    img.width = details.width;
+                    img.height = details.height;
+                }
+            }
+        }).catch(() => {
+            meta.textContent = '(?, ?)';
+        });
     });
 }
 
@@ -1275,7 +1314,20 @@ function sanitizeWebsite(value) {
     return `https://${website}`;
 }
 
-function sanitizeImageUrl(value) {
+function sanitizeImageUrls(value) {
+    const raw = String(value || '').trim();
+    if (!raw) {return []}
+
+    const bracketMatches = [...raw.matchAll(/\[([^\]]+)\]/g)].map(m => m[1].trim()).filter(Boolean);
+    const candidates = bracketMatches.length > 0 ? bracketMatches : [raw];
+
+    return candidates.flatMap(url => {
+        const sanitized = sanitizeSingleImageUrl(url);
+        return sanitized ? [sanitized] : [];
+    });
+}
+
+function sanitizeSingleImageUrl(value) {
     const imageUrl = String(value || '').trim();
     if (!imageUrl) {return ''}
 
