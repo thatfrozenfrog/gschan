@@ -1,5 +1,5 @@
 import generateTripcode from 'https://esm.sh/tripcode@4.0.0';
-import adminTripcodes from './admin.js';
+import badges from './badges.js';
 
 /*
     (PLEASE DO NOT DELETE THIS HEADER OR CREDIT!)
@@ -648,7 +648,7 @@ function createCanonicalComment(comment, seenPostNumbers) {
         Timestamp2: safeTimestamp2,
         Name: parsedName.name,
         Tripcode: parsedName.tripcode,
-        IsAdmin: isAdminTripcode(parsedName.tripcode),
+        Badge: lookupBadge(parsedName.tripcode),
         Website: safeWebsite,
         Images: safeImages,
         Text: safeText,
@@ -820,10 +820,11 @@ function renderNameMarkup(comment) {
         ? `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(getWebsiteLabel(comment.Website))}</a> `
         : '';
     const tripMarkup = comment.Tripcode ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>` : '';
-    const adminMarkup = comment.IsAdmin
-        ? `<span class="c-adminBadge" ><img class="c-adminBadgeIcon" src="${escapeAttribute(s_adminIconPath)}" alt="Admin icon" width="14" height="14"><span class="c-adminBadgeText">## ADMIN</span></span>`
+    const badge = comment.Badge;
+    const badgeMarkup = badge
+        ? `<span class="${escapeAttribute(badge.css)}">${badge.icon ? `<img class="c-badgeIcon" src="${escapeAttribute(badge.icon)}" alt="${escapeAttribute(badge.name)} icon" width="14" height="14">` : ''}<span class="c-badgeText">${escapeHtml(badge.name)}</span></span>`
         : '';
-    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}${adminMarkup}`;
+    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}${badgeMarkup}`;
 }
 
 function renderBacklinks(replyNumbers) {
@@ -1300,11 +1301,13 @@ function parseNameField(value) {
     };
 }
 
-function isAdminTripcode(value) {
+function lookupBadge(value) {
     const normalizedTripcode = String(value || '').trim();
-    if (!normalizedTripcode) {return false}
+    if (!normalizedTripcode) {return null}
 
-    return adminTripcodes.some((adminTripcode) => String(adminTripcode || '').trim() === normalizedTripcode);
+    return badges.find((badge) =>
+        (badge.tripcodes || []).some((t) => String(t || '').trim() === normalizedTripcode)
+    ) || null;
 }
 
 function sanitizeWebsite(value) {
