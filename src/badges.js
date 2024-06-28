@@ -22,18 +22,6 @@
         },
 */
 
-const s_badgeStylePath = new URL('./badges.css', import.meta.url).href;
-(function () {
-    if (!document.querySelector('link[data-comment-widget-style="badges"]')) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.type = 'text/css';
-        link.href = s_badgeStylePath;
-        link.setAttribute('data-comment-widget-style', 'badges');
-        document.head.appendChild(link);
-    }
-}());
-
 const badges = [
     {
         tripcodes: ['EXAMPLE_TRIP'],
