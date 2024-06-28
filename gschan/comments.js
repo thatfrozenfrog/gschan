@@ -132,7 +132,18 @@ export function createCanonicalComment(comment, seenPostNumbers, { pagePath, tim
 }
 
 export function parseNameField(value) {
-    const [rawName, ...tripParts] = String(value || '').split('#');
+    const str = String(value || '');
+
+    // New format: name!!hash — tripcode already hashed before storage
+    if (str.includes('!!')) {
+        const bangIdx = str.indexOf('!!');
+        const visibleName = str.slice(0, bangIdx).trim() || 'Cirno';
+        const computedTripcode = str.slice(bangIdx + 2).trim();
+        return { name: visibleName, tripcode: computedTripcode };
+    }
+
+    // Legacy format: name#secret — raw secret still in DB, hash on read
+    const [rawName, ...tripParts] = str.split('#');
     const visibleName = rawName.trim() || 'Cirno';
     const tripSecret = tripParts.join('#').trim().slice(0, 8);
     const computedTripcode = tripSecret ? generateTripcode(tripSecret) : '';
