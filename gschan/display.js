@@ -41,7 +41,7 @@ export function displayComments(comments, ctx, state) {
     });
 
     roots.forEach((root) => assignThreadDepth(root, 0));
-    roots.sort((a, b) => b.timestampMs - a.timestampMs);
+    roots.sort((a, b) => threadBumpTime(b) - threadBumpTime(a));
     comments.forEach((comment) => {
         if (comment.replies && comment.replies.length) {
             comment.replies.sort((a, b) => a.timestampMs - b.timestampMs);
@@ -191,4 +191,13 @@ function resolveReplyTarget(replyValue, byReference) {
     const normalized = String(replyValue || '').trim();
     if (!normalized) { return null }
     return byReference.get(normalized) || null;
+}
+
+function threadBumpTime(comment) {
+    let latest = comment.timestampMs || 0;
+    for (const reply of (comment.replies || [])) {
+        const t = threadBumpTime(reply);
+        if (t > latest) { latest = t }
+    }
+    return latest;
 }

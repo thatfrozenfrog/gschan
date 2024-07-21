@@ -1,5 +1,6 @@
 // gschan/widget.js — Main factory. Call createWidget(config) to initialize.
 
+import generateTripcode from 'https://esm.sh/tripcode@4.0.0';
 import { ensureStylesheet, getThemeHref, getStoredTheme, setBoardTheme } from './theme.js';
 import { fetchComments } from './comments.js';
 import { displayComments } from './display.js';
@@ -245,6 +246,18 @@ export function createWidget(userConfig) {
             if (nameInput && !nameInput.value.trim()) { nameInput.value = 'Cirno' }
 
             const formData = new FormData(form);
+
+            // Hash tripcode secret before sending so it is never stored in plain text
+            const nameKey = `entry.${cfg.nameId}`;
+            const rawName = String(formData.get(nameKey) || '');
+            const hashIdx = rawName.indexOf('#');
+            if (hashIdx !== -1) {
+                const visibleName = rawName.slice(0, hashIdx).trim() || 'Cirno';
+                const tripSecret = rawName.slice(hashIdx + 1).trim().slice(0, 8);
+                const tripHash = tripSecret ? generateTripcode(tripSecret) : '';
+                formData.set(nameKey, tripHash ? `${visibleName}!!${tripHash}` : visibleName);
+            }
+
             fetch(form.action, { method: 'POST', mode: 'no-cors', body: formData }).finally(() => {
                 setTimeout(() => getComments(), 800);
             });
