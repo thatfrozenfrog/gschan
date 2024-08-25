@@ -31,7 +31,7 @@ export function createWidget(userConfig) {
         includeUrlParameters: false,
         fixRarebitIndexPage:  false,
         wordFilterOn:         false,
-        filterReplacement:    '****',
+        filterReplacement:    '',
         filteredWords:        [],
         badges:               [],
         // Text
