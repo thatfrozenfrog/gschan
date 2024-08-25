@@ -26,7 +26,7 @@ export function createWidget(userConfig) {
         maxLength:            500,
         maxLengthName:        16,
         commentsOpen:         true,
-        collapsedReplies:     true,
+        collapsedReplies:     false,
         longTimestamp:        false,
         includeUrlParameters: false,
         fixRarebitIndexPage:  false,
