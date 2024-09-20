@@ -39,7 +39,7 @@ createWidget({
     maxLength:            500,   // Max comment character length
     maxLengthName:        16,    // Max name character length
     commentsOpen:         true,  // false = close comments site-wide
-    collapsedReplies:     true,  // true = replies start collapsed
+    collapsedReplies:     false,  // true = replies start collapsed
     longTimestamp:        false, // true = date + time, false = date only
     includeUrlParameters: false, // true = URL params treated as separate pages
     fixRarebitIndexPage:  false, // true = Rarebit index & page 1 share one section
