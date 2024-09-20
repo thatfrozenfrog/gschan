@@ -32,7 +32,7 @@ createWidget({
     imageId:   '1000000006',
 
     // ── THEME ─────────────────────────────────────────────────────────────────────
-    defaultTheme: 'tomorrow', // 'photon' | 'tomorrow' | 'yotsuba'
+    defaultTheme: 'yotsuba', // 'photon' | 'tomorrow' | 'yotsuba'
 
     // ── MISC ──────────────────────────────────────────────────────────────────────
     commentsPerPage:      5,     // Max root comments per page (replies not counted)
@@ -45,10 +45,9 @@ createWidget({
     fixRarebitIndexPage:  false, // true = Rarebit index & page 1 share one section
 
     // ── WORD FILTER ───────────────────────────────────────────────────────────────
-    wordFilterOn:      false,
-    filterReplacement: '(((they)))',
-    filteredWords:     ['jews', 'jew'],
-
+    wordFilterOn:      true,
+    filterReplacement: '**CENSORED**',
+    filteredWords:     ['jews', 'jew', 'faggot', 'fag', 'nigger'],
     // ── TEXT ──────────────────────────────────────────────────────────────────────
     widgetTitle:          'example.com',
     widgetBannerTitle:    '/gs/ - gschan',
