@@ -277,10 +277,16 @@
   display: block;
   height: auto;
   max-width: min(250px, calc(100vw - 72px));
+  cursor: zoom-in;
 }
 
 #c_widget .reply .c-fileImage {
   max-width: min(200px, calc(100vw - 96px));
+}
+
+#c_widget .c-fileImage--expanded {
+  max-width: min(100%, calc(100vw - 72px));
+  cursor: zoom-out;
 }
 
 #c_widget blockquote.postMessage {
