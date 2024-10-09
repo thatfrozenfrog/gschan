@@ -70,6 +70,14 @@ export function hydrateImageAttachment(post, comment) {
     const images = comment.Images || [];
     if (images.length === 0) { return }
 
+    post.querySelectorAll('.c-fileThumbLink').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const img = link.querySelector('.c-fileImage');
+            if (img) { img.classList.toggle('c-fileImage--expanded') }
+        });
+    });
+
     images.forEach((url, index) => {
         const metaId = `${comment.postNumber}-${index}`;
         const meta = post.querySelector(`[data-image-meta="${metaId}"]`);
