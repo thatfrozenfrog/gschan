@@ -27,7 +27,7 @@ const badges = [
         tripcodes: ['EXAMPLE_TRIP'],
         name: '## ADMIN',
         css:  'c-adminBadge',
-        icon: '/img/admin.gif',
+        icon: '/img/admin.png',
     },
     {
         tripcodes: ['EXAMPLE_GOOGLE'],
