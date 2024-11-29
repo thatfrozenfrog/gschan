@@ -47,7 +47,7 @@ createWidget({
     // ── WORD FILTER ───────────────────────────────────────────────────────────────
     wordFilterOn:      true,
     filterReplacement: '**CENSORED**',
-    filteredWords:     ['jews', 'jew', 'faggot', 'fag', 'nigger'],
+    filteredWords:     ['soyjak'],
     // ── TEXT ──────────────────────────────────────────────────────────────────────
     widgetTitle:          'example.com',
     widgetBannerTitle:    '/gs/ - gschan',
