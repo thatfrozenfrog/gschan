@@ -12,6 +12,7 @@ const s_themePaths   = {
     photon:   new URL('./skin/photon.css',   import.meta.url).href,
     tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
     yotsuba:  new URL('./skin/yotsuba.css',  import.meta.url).href,
+    book:    new URL('./skin/futaba.css',     import.meta.url).href,
 };
 
 /**
@@ -88,6 +89,7 @@ export function createWidget(userConfig) {
                         <option value="photon">photon.css</option>
                         <option value="tomorrow">tomorrow.css</option>
                         <option value="yotsuba">yotsuba.css</option>
+                        <option value="book">futaba.css</option>
                     </select>
                 </div>
                 <div class="boardTitle">${cfg.widgetBannerTitle}</div>
