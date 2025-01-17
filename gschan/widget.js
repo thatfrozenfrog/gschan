@@ -6,14 +6,24 @@ import { fetchComments } from './comments.js';
 import { displayComments } from './display.js';
 import { openReply, setReplyPrefix } from './reply.js';
 
-const s_stylePath    = new URL('./comment-widget.css', import.meta.url).href;
-const s_badgesPath   = new URL('./badges.css', import.meta.url).href;
-const s_themePaths   = {
+export const stylePath  = new URL('./comment-widget.css', import.meta.url).href;
+export const badgesPath = new URL('./badges.css', import.meta.url).href;
+export const themePaths = {
     photon:   new URL('./skin/photon.css',   import.meta.url).href,
     tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
     yotsuba:  new URL('./skin/yotsuba.css',  import.meta.url).href,
-    book:    new URL('./skin/futaba.css',     import.meta.url).href,
+    book:     new URL('./skin/futaba.css',   import.meta.url).href,
 };
+
+/** Returns the theme key currently active (from localStorage, or the given fallback). */
+export function getCurrentTheme(defaultTheme = 'tomorrow') {
+    return getStoredTheme({ themePaths, defaultTheme });
+}
+
+// Internal aliases kept for createWidget below
+const s_stylePath  = stylePath;
+const s_badgesPath = badgesPath;
+const s_themePaths = themePaths;
 
 /**
  * Initialize the comment widget.

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>/gs/ - gschan</title>
     <link rel="stylesheet" href="src/style.css" />
-    <link rel="stylesheet" href="src/yotsuba.css" />
+    <link rel="stylesheet" href="gschan/skin/yotsuba.css" />
     <link rel="icon" href="/img/admin.png" />
+    <script type="module" src="/src/page-shell.js"></script>
   </head>
   <body>
 
@@ -17,8 +18,10 @@
       class="no-albums">
     </lastfm-tracks>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/widgets-1.10.0/lastfm.js"></script>
+    <script type="module" src="/src/comment-widget.js"></script>
     <div id="c_widget_wrap"><div id="c_widget"></div></div>
-    
+
+    <div id="page-footer"></div>
   </body>
 </html>
