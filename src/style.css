@@ -2,233 +2,45 @@ html,
 body {
   min-height: 100%;
 }
-
-body.thread-maker-page {
-  margin: 0;
-  padding: 18px;
-  min-height: 100vh;
-  box-sizing: border-box;
+#page-footer {
+  text-align: center;
+  width: 100%;
 }
 
-.thread-maker-page * {
-  box-sizing: border-box;
-}
-
-.maker-shell {
-  display: grid;
-  grid-template-columns: minmax(320px, 460px) minmax(0, 1fr);
-  gap: 18px;
-  align-items: start;
-}
-
-.maker-panel {
-  background: rgba(255, 255, 255, 0.54);
-  border: 1px solid #d9bfb7;
-  box-shadow: 0 12px 28px rgba(128, 0, 0, 0.08);
-}
-
-.maker-controls {
-  padding: 14px;
-}
-
-.maker-preview-panel {
-  position: sticky;
-  top: 18px;
-}
-
-.maker-heading h1 {
-  margin: 0;
-  font-family: Tahoma, sans-serif;
-  font-size: 28px;
-  letter-spacing: -1px;
-}
-
-.maker-kicker {
-  margin: 0 0 4px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #b86;
-}
-
-.maker-copy {
-  margin: 8px 0 0;
-  max-width: 42ch;
-  line-height: 1.5;
-}
-
-.maker-form {
-  display: grid;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.maker-fieldset {
-  margin: 0;
-  padding: 12px;
-  border: 1px solid #d9bfb7;
-  background: rgba(240, 224, 214, 0.55);
-}
-
-.maker-fieldset legend {
-  padding: 0 6px;
-  color: #800000;
-  font-weight: bold;
-}
-
-.maker-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.maker-grid.two-col {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.maker-form label {
-  display: grid;
-  gap: 4px;
-  font-weight: bold;
-}
-
-.maker-form textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.maker-inline-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.maker-toolbar,
-.maker-reply-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.maker-toolbar p,
-.maker-reply-head h2 {
-  margin: 0;
-}
-
-.maker-replies {
-  display: grid;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.maker-reply-card {
-  padding: 12px;
-  border: 1px solid #d9bfb7;
-  background: rgba(255, 255, 238, 0.8);
-  display: grid;
-  gap: 10px;
-}
-
-.maker-button {
-  border: 1px solid #800000;
-  background: linear-gradient(180deg, #fff8ec 0%, #ead4c8 100%);
-  color: #800000;
-  font: inherit;
-  font-weight: bold;
-  padding: 7px 12px;
-  cursor: pointer;
-}
-
-.maker-button:hover {
-  color: #cc1105;
-}
-
-.maker-button.subtle {
-  border-color: #b86;
-}
-
-.maker-preview-header {
-  padding-top: 12px;
-}
-
-.maker-preview-frame {
-  padding: 12px 14px 16px;
-  max-height: calc(100vh - 92px);
-  overflow: auto;
-}
-
-.maker-preview-frame .thread {
-  min-width: 620px;
-}
-
-.maker-flag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 18px;
-  margin-left: 6px;
-  padding: 0 6px;
-  border: 1px solid #d9bfb7;
-  background: #fff8ec;
-  color: #800000;
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1;
-  vertical-align: middle;
-}
-
-.maker-op-toggle {
-  float: left;
-  margin-right: 6px;
-  color: #800000;
-  font-size: 12px;
-}
-
-.postMenuBtn {
-  margin-left: 4px;
-}
-
-.maker-mobile-summary {
-  margin-top: 10px;
+#page-footer #boardNavDesktopFoot {
   text-align: center;
 }
-
-@media (max-width: 1080px) {
-  .maker-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .maker-preview-panel {
-    position: static;
-  }
-
-  .maker-preview-frame {
-    max-height: none;
-  }
+.page-board {
+  max-width: 1050px;
+  margin: 0 auto;
 }
 
-@media (max-width: 720px) {
-  body.thread-maker-page {
-    padding: 10px;
-  }
-
-  .maker-grid.two-col,
-  .maker-inline-pair {
-    grid-template-columns: 1fr;
-  }
-
-  .maker-toolbar,
-  .maker-reply-head {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .maker-preview-frame {
-    padding: 10px;
-  }
-
-  .maker-preview-frame .thread {
-    min-width: 0;
-  }
+.rules-panel {
+  margin: 8px auto 0;
+  max-width: 980px;
+  border: 1px solid var(--rules-outline, #000080);
 }
+
+.rules-panel-title {
+  margin: 0;
+  padding: 4px 8px;
+  color: #fff;
+  background: color-mix(in srgb, var(--rules-inner-2, #f0e0d6) 45%, #2b7f9b);
+}
+
+.rules-panel-body {
+  padding: 8px 10px;
+  color: var(--rules-text, #353839);
+  background: color-mix(in srgb, var(--rules-inner-1, #eee) 55%, #d6e7e9);
+}
+
+.rules-list {
+  margin: 0;
+  padding-left: 26px;
+}
+
+.rules-list li {
+  margin: 0 0 6px;
+}
+
+
