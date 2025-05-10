@@ -43,4 +43,24 @@ body {
   margin: 0 0 6px;
 }
 
+.faq-list {
+  display: grid;
+  gap: 10px;
+}
+
+.faq-item {
+  padding: 6px 8px;
+  border: 1px solid var(--rules-outline, #000080);
+  background: color-mix(in srgb, var(--rules-inner-1, #eee) 75%, #fff);
+}
+
+.faq-q,
+.faq-a {
+  margin: 0;
+}
+
+.faq-q {
+  margin-bottom: 4px;
+}
+
 
