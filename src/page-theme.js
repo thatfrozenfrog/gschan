@@ -2,13 +2,13 @@
 // Add <script type="module" src="/src/page-theme.js"></script> to any page
 // that needs to stay in sync with the comment widget's selected skin.
 
-import { getStoredTheme, ensureStylesheet } from '/gschan/theme.js';
+import { getStoredTheme, ensureStylesheet } from '../gschan/theme.js';
 
 const themes = {
-    photon:   '/gschan/skin/photon.css',
-    tomorrow: '/gschan/skin/tomorrow.css',
-    yotsuba:  '/gschan/skin/yotsuba.css',
-    book:     '/gschan/skin/futaba.css',
+    photon:   new URL('../gschan/skin/photon.css', import.meta.url).href,
+    tomorrow: new URL('../gschan/skin/tomorrow.css', import.meta.url).href,
+    yotsuba:  new URL('../gschan/skin/yotsuba.css', import.meta.url).href,
+    book:     new URL('../gschan/skin/futaba.css', import.meta.url).href,
 };
 
 const defaultTheme = 'yotsuba';
