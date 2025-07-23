@@ -106,8 +106,13 @@ export function renderCommentMarkup(comment, isOp, ctx) {
 }
 
 export function renderNameMarkup(comment) {
+    const websiteLabel = String(comment._websiteLabel || '');
+    const websiteSpaces = (websiteLabel.match(/ /g) || []).length;
+    const displayWebsiteLabel = decodeWebsiteLabel(websiteLabel);
     const siteMarkup = comment.Website
-        ? `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(comment._websiteLabel)}</a> `
+        ? websiteSpaces > 2
+            ? `<span class="c-nameSite useremail">${escapeHtml(displayWebsiteLabel)}</span> `
+            : `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(displayWebsiteLabel)}</a> `
         : '';
     const tripMarkup = comment.Tripcode
         ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>`
@@ -117,6 +122,14 @@ export function renderNameMarkup(comment) {
         ? `<span class="${escapeAttribute(badge.css)}">${badge.icon ? `<img class="c-badgeIcon" src="${escapeAttribute(badge.icon)}" alt="${escapeAttribute(badge.name)} icon" width="14" height="14">` : ''}<span class="c-badgeText">${escapeHtml(badge.name)}</span></span>`
         : '';
     return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}${badgeMarkup}`;
+}
+
+function decodeWebsiteLabel(label) {
+    try {
+        return decodeURIComponent(label);
+    } catch {
+        return label;
+    }
 }
 
 export function renderBacklinks(replyNumbers) {
