@@ -315,8 +315,20 @@
 #c_widget .title {
   display: inline-block;
   color: var(--title-color);
-  font-weight: 700;
-  font-size: 1.1em;
+  font-weight: normal;
+  font-size: 1.5em;
+  margin: 0.2em 0 0.4em 0;
+  line-height: 1.1;
+}
+
+/* Global class to ensure OP titles are styled even outside #c_widget scope */
+.c-title {
+  display: inline-block;
+  color: var(--title-color);
+  font-weight: normal;
+  font-size: 1.5em;
+  margin: 0.2em 0 0.4em 0;
+  line-height: 1.1;
 }
 
 #c_widget .bold {
