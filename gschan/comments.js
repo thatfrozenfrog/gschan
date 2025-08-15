@@ -1,13 +1,13 @@
 // gschan/comments.js — Data fetching, normalization, and comment parsing
 
-import generateTripcode from 'https://esm.sh/tripcode@4.0.0';
+import generateTripcode from 'tripcode';
 import { sanitizeText, sanitizeWebsite, sanitizeImageUrls, createStablePostNumber, getWebsiteLabel } from './utils.js';
 import { convertTimestamp } from './timestamps.js';
 
 /**
  * Fetch and process comments from Google Sheets, then call onResult(comments).
  */
-export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, badges }, onResult, onError) {
+export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, tripcodeLabels }, onResult, onError) {
     const cacheBuster = Date.now();
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&_=${cacheBuster}`;
 
@@ -66,7 +66,7 @@ export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, im
             }
         }
 
-        comments = normalizeComments(comments, { pagePath, timezoneOffsetMinutes, badges });
+        comments = normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels });
 
         onResult(comments);
     }).catch(onError);
@@ -86,15 +86,15 @@ export function fetchSheet(url) {
     });
 }
 
-export function normalizeComments(comments, { pagePath, timezoneOffsetMinutes, badges }) {
+export function normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels }) {
     const seenPostNumbers = new Set();
 
     return comments
-        .map((comment) => createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, badges }))
+        .map((comment) => createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels }))
         .sort((a, b) => a.timestampMs - b.timestampMs);
 }
 
-export function createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, badges }) {
+export function createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels }) {
     const safeName = sanitizeText(comment.Name || 'Cirno');
     const safeWebsite = sanitizeWebsite(comment.Website);
     const safeImages = sanitizeImageUrls(comment.Image);
@@ -113,7 +113,7 @@ export function createCanonicalComment(comment, seenPostNumbers, { pagePath, tim
         Timestamp2: safeTimestamp2,
         Name: parsedName.name,
         Tripcode: parsedName.tripcode,
-        Badge: lookupBadge(parsedName.tripcode, badges),
+        TripcodeLabel: lookupTripcodeLabel(parsedName.tripcode, tripcodeLabels),
         Website: safeWebsite,
         _websiteLabel: safeWebsite ? getWebsiteLabel(safeWebsite) : '',
         Images: safeImages,
@@ -151,11 +151,9 @@ export function parseNameField(value) {
     return { name: visibleName, tripcode: computedTripcode };
 }
 
-export function lookupBadge(tripcode, badges) {
-    const normalized = String(tripcode || '').trim();
-    if (!normalized || !badges || !badges.length) { return null }
-
-    return badges.find((badge) =>
-        (badge.tripcodes || []).some((t) => String(t || '').trim() === normalized)
-    ) || null;
+export function lookupTripcodeLabel(tripcode, labels = {}) {
+    const normalized = String(tripcode || '').trim().replace(/^!/, '');
+    const key = `!${normalized}`;
+    return normalized && Object.hasOwn(labels, key) && typeof labels[key] === 'string'
+        ? labels[key] : '';
 }

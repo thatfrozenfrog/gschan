@@ -114,14 +114,12 @@ export function renderNameMarkup(comment) {
             ? `<span class="c-nameSite useremail">${escapeHtml(displayWebsiteLabel)}</span> `
             : `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(displayWebsiteLabel)}</a> `
         : '';
-    const tripMarkup = comment.Tripcode
+    const tripMarkup = comment.TripcodeLabel
+        ? `<span class="postertrip"> ## ${escapeHtml(comment.TripcodeLabel)}</span>`
+        : comment.Tripcode
         ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>`
         : '';
-    const badge = comment.Badge;
-    const badgeMarkup = badge
-        ? `<span class="${escapeAttribute(badge.css)}">${badge.icon ? `<img class="c-badgeIcon" src="${escapeAttribute(badge.icon)}" alt="${escapeAttribute(badge.name)} icon" width="14" height="14">` : ''}<span class="c-badgeText">${escapeHtml(badge.name)}</span></span>`
-        : '';
-    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}${badgeMarkup}`;
+    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
 }
 
 function decodeWebsiteLabel(label) {

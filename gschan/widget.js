@@ -1,13 +1,12 @@
 // gschan/widget.js — Main factory. Call createWidget(config) to initialize.
 
-import generateTripcode from 'https://esm.sh/tripcode@4.0.0';
+import generateTripcode from 'tripcode';
 import { ensureStylesheet, getThemeHref, getStoredTheme, setBoardTheme } from './theme.js';
 import { fetchComments } from './comments.js';
 import { displayComments } from './display.js';
 import { openReply, setReplyPrefix } from './reply.js';
 
 export const stylePath  = new URL('./comment-widget.css', import.meta.url).href;
-export const badgesPath = new URL('./badges.css', import.meta.url).href;
 export const themePaths = {
     photon:   new URL('./skin/photon.css',   import.meta.url).href,
     tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
@@ -22,7 +21,6 @@ export function getCurrentTheme(defaultTheme = 'tomorrow') {
 
 // Internal aliases kept for createWidget below
 const s_stylePath  = stylePath;
-const s_badgesPath = badgesPath;
 const s_themePaths = themePaths;
 
 /**
@@ -44,7 +42,7 @@ export function createWidget(userConfig) {
         wordFilterOn:         false,
         filterReplacement:    '',
         filteredWords:        [],
-        badges:               [],
+        tripcodeLabels:       {},
         // Text
         widgetTitle:          '',
         widgetBannerTitle:    '',
@@ -87,7 +85,6 @@ export function createWidget(userConfig) {
     const themePaths = { ...s_themePaths, ...(userConfig.extraThemePaths || {}) };
     ensureStylesheet(getThemeHref(cfg.defaultTheme, { themePaths, defaultTheme: cfg.defaultTheme }), 'board-theme');
     ensureStylesheet(s_stylePath, 'widget');
-    ensureStylesheet(s_badgesPath, 'badges');
 
     // ── Build HTML ───────────────────────────────────────────────────────────────
     const mainHtml = `
@@ -245,7 +242,7 @@ export function createWidget(userConfig) {
         pageId:                cfg.pageId,
         replyId:               cfg.replyId,
         timezoneOffsetMinutes,
-        badges:                cfg.badges,
+        tripcodeLabels:        cfg.tripcodeLabels,
     };
 
     // ── Submit handler ────────────────────────────────────────────────────────────
