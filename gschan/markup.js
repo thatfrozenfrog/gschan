@@ -49,11 +49,6 @@ export function renderMessage(text, { wordFilterOn, filteredWords, filterReplace
 export function renderStyledLine(line) {
     if (!line) { return '' }
 
-    const titleMatch = line.match(/^==(.+)==$/);
-    if (titleMatch) {
-        return `<span class="title">${renderInlineMarkup(titleMatch[1].trim())}</span>`;
-    }
-
     const renderedLine = renderInlineMarkup(line);
     if (line.startsWith('>')) {
         return `<span class="quote greentext">${renderedLine}</span>`;
@@ -105,6 +100,7 @@ export function renderInlineMarkup(line) {
     });
 
     renderedLine = renderedLine.replace(/&quot;&quot;(.+?)&quot;&quot;/g, '<span class="bold">$1</span>');
+    renderedLine = renderedLine.replace(/==(.+?)==/g, '<span class="title c-title">$1</span>');
     renderedLine = renderedLine.replace(/''(.+?)''/g, '<em>$1</em>');
     renderedLine = renderedLine.replace(/__([^_]+?)__/g, '<span class="c-underline">$1</span>');
     renderedLine = renderedLine.replace(/~~(.+?)~~/g, '<s>$1</s>');
