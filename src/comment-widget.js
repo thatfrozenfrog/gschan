@@ -1,4 +1,4 @@
-import badges from './badges.js';
+import tripcodeLabels from './tripcode.json';
 import { createWidget } from '../gschan/widget.js';
 
 /*
@@ -67,7 +67,7 @@ createWidget({
     rightButtonText:      '>>',
     themeLabelText:       'Theme',
 
-    // ── BADGES ────────────────────────────────────────────────────────────────────
-    badges,
+    // ── TRIPCODE LABELS ───────────────────────────────────────────────────────────
+    tripcodeLabels,
 
 });
