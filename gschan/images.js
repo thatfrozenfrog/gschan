@@ -1,6 +1,6 @@
 // gschan/images.js — Image attachment rendering and metadata loading
 
-import { escapeHtml, escapeAttribute } from './utils.js';
+import { escapeHtml, escapeAttribute, isVideoUrl } from './utils.js';
 
 const imageMetadataCache = new Map();
 
@@ -39,9 +39,9 @@ export function renderSingleAttachment(comment, url, index) {
                 File (<button type="button" class="c-fileHide" data-target="fi${comment.postNumber}-${index}">hide</button>): <a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a> <a href="${escapeAttribute(url)}" class="c-fileDownload" target="_blank" rel="noreferrer" title="Download image">&#8681;</a> <span class="c-fileMeta" data-image-meta="${metaId}">(wait)</span> <a href="${escapeAttribute(imgopsUrl)}" class="c-imgops" target="_blank" rel="noreferrer">ImgOps</a>
             </div>
             <div id="fi${comment.postNumber}-${index}">
-                <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">
-                    <img class="c-fileImage" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">
-                </a>
+                <${isVideoUrl(url) ? 'span' : 'a'} class="fileThumb c-fileThumbLink" ${isVideoUrl(url) ? '' : `href="${escapeAttribute(url)}" target="_blank" rel="noreferrer"`}>
+                    ${renderMedia(url, fileName, false)}
+                </${isVideoUrl(url) ? 'span' : 'a'}>
             </div>
         </div>
     `;
@@ -58,9 +58,9 @@ export function renderCollageCell(comment, url, index) {
                 File (<button type="button" class="c-fileHide" data-target="cfi${comment.postNumber}-${index}">hide</button>): <a href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">${escapeHtml(fileName)}</a> <a href="${escapeAttribute(url)}" class="c-fileDownload" target="_blank" rel="noreferrer" title="Download image">&#8681;</a> <span class="c-fileMeta" data-image-meta="${metaId}">(wait)</span> <a href="${escapeAttribute(imgopsUrl)}" class="c-imgops" target="_blank" rel="noreferrer">ImgOps</a>
             </div>
             <div id="cfi${comment.postNumber}-${index}">
-                <a class="fileThumb c-fileThumbLink" href="${escapeAttribute(url)}" target="_blank" rel="noreferrer">
-                    <img class="c-fileImage c-collageImage" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">
-                </a>
+                <${isVideoUrl(url) ? 'span' : 'a'} class="fileThumb c-fileThumbLink" ${isVideoUrl(url) ? '' : `href="${escapeAttribute(url)}" target="_blank" rel="noreferrer"`}>
+                    ${renderMedia(url, fileName, true)}
+                </${isVideoUrl(url) ? 'span' : 'a'}>
             </div>
         </div>
     `;
@@ -72,6 +72,7 @@ export function hydrateImageAttachment(post, comment) {
 
     post.querySelectorAll('.c-fileThumbLink').forEach((link) => {
         link.addEventListener('click', (e) => {
+            if (link.querySelector('video')) { return }
             e.preventDefault();
             const img = link.querySelector('.c-fileImage');
             if (img) { img.classList.toggle('c-fileImage--expanded') }
@@ -82,6 +83,10 @@ export function hydrateImageAttachment(post, comment) {
         const metaId = `${comment.postNumber}-${index}`;
         const meta = post.querySelector(`[data-image-meta="${metaId}"]`);
         if (!meta) { return }
+        if (isVideoUrl(url)) {
+            meta.textContent = '(video)';
+            return;
+        }
 
         loadImageMetadata(url).then((details) => {
             meta.textContent = `(${details.fileSizeText}, ${details.dimensionsText})`;
@@ -97,6 +102,14 @@ export function hydrateImageAttachment(post, comment) {
             meta.textContent = '(?, ?)';
         });
     });
+}
+
+function renderMedia(url, fileName, collage) {
+    const className = collage ? 'c-fileImage c-collageImage' : 'c-fileImage';
+    if (isVideoUrl(url)) {
+        return `<video class="${className}" src="${escapeAttribute(url)}" controls preload="metadata" aria-label="${escapeAttribute(fileName)}"></video>`;
+    }
+    return `<img class="${className}" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">`;
 }
 
 export function loadImageMetadata(url) {
