@@ -1,16 +1,14 @@
 // gschan/display.js — Comment display, pagination, and post navigation
 
 import { createCommentNode } from './thread.js';
+import { renderCatalog } from './catalog.js';
 
 /**
  * @param {object[]} comments       Normalized comment array
  * @param {object}   ctx            Display context (config + callbacks)
  * @param {object}   state          Mutable widget state
  */
-export function displayComments(comments, ctx, state) {
-    state.commentDivs = [];
-    ctx.container.innerHTML = '';
-
+export function buildThreadIndex(comments) {
     // Reset tree fields for fresh build
     comments.forEach((comment) => {
         comment.replies = [];
@@ -24,14 +22,21 @@ export function displayComments(comments, ctx, state) {
 
     comments.forEach((comment) => {
         byReference.set(String(comment.postNumber), comment);
-        byReference.set(comment.legacyId, comment);
+        if (comment.legacyId) { byReference.set(comment.legacyId, comment) }
     });
 
     // Wire up parent ↔ reply relationships
     comments.forEach((comment) => {
         const parent = resolveReplyTarget(comment.replyTarget, byReference);
 
-        if (parent) {
+        // Malformed references must not hide a thread or create recursive cycles.
+        const visited = new Set([comment]);
+        let ancestor = parent;
+        while (ancestor && !visited.has(ancestor)) {
+            visited.add(ancestor);
+            ancestor = byReference.get(String(ancestor.parentPostNumber));
+        }
+        if (parent && !ancestor) {
             if (!parent.replies) { parent.replies = [] }
             parent.replies.push(comment);
             comment.parentPostNumber = parent.postNumber;
@@ -47,6 +52,32 @@ export function displayComments(comments, ctx, state) {
             comment.replies.sort((a, b) => a.timestampMs - b.timestampMs);
         }
     });
+
+    return { roots, byReference };
+}
+
+export function displayComments(comments, ctx, state) {
+    state.commentDivs = [];
+    ctx.container.innerHTML = '';
+    const { roots } = buildThreadIndex(comments);
+    if (ctx.catalogControl) {
+        ctx.catalogControl.textContent = state.catalogMode ? 'Return to Index' : 'Catalog';
+        ctx.catalogControl.setAttribute('aria-pressed', String(Boolean(state.catalogMode)));
+    }
+
+    if (state.catalogMode) {
+        ctx.container.appendChild(renderCatalog(roots, {
+            filterCfg: ctx.filterCfg,
+            onOpenThread: (postNumber) => {
+                const rootIndex = roots.findIndex(root => root.postNumber === postNumber);
+                state.catalogMode = false;
+                state.pageNum = Math.floor(rootIndex / ctx.commentsPerPage) + 1;
+                displayComments(comments, ctx, state);
+                navigateToPost(postNumber);
+            },
+        }));
+        return;
+    }
 
     // Pagination bounds
     state.amountOfPages = Math.max(1, Math.ceil(roots.length / ctx.commentsPerPage));

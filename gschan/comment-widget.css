@@ -1,6 +1,8 @@
+/* Board geometry adapted from Yotsuba css/yotsubanew.css and
+   css/yotsubamobile.css, 2026-09-16, GPL v3; /licenses/yotsuba.txt. */
 #c_widget_wrap {
-  width: min(100%, 1120px);
-  margin: 26px auto 40px;
+  width: 100%;
+  margin: 0 auto 20px;
 }
 
 #c_widget {
@@ -14,14 +16,13 @@
 }
 
 #c_widget .c-widget-shell {
-  display: grid;
-  gap: 10px;
+  display: block;
 }
 
 #c_widget .c-widget-banner {
   position: relative;
-  margin-bottom: 2px;
-  padding: 8px;
+  margin: 12px 0 20px;
+  padding: 8px 0;
 }
 
 #c_widget .c-themeConfig {
@@ -49,7 +50,8 @@
 }
 
 #c_widget #c_form {
-  width: min(100%, 520px);
+  width: min(100%, 468px);
+  margin-bottom: 20px;
 }
 
 #c_widget .c-postFormTable {
@@ -64,10 +66,11 @@
 #c_widget .c-postFormTable input[type="url"],
 #c_widget .c-postFormTable textarea {
   width: 100%;
+  box-sizing: border-box;
 }
 
 #c_widget .c-postFormTable textarea {
-  min-height: 130px;
+  min-height: 90px;
   resize: vertical;
 }
 
@@ -107,6 +110,35 @@
   gap: 10px;
 }
 
+/* Catalog dimensions adapted from Yotsuba css/catalog_yotsuba_new.css.
+   Snapshot and GPL-3.0 attribution: public/licenses/yotsuba.txt. */
+#c_widget .c-boardControls { border-block: 1px solid var(--c-button-border); padding: 5px 0; }
+#c_widget .c-boardControls button { color: inherit; font: inherit; background: none; border: 0; padding: 0 3px; cursor: pointer; text-decoration: underline; }
+#c_widget .c-catalog { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 20px 10px; padding: 15px 0; }
+#c_widget .c-catalogCard { width: 180px; text-align: center; overflow-wrap: anywhere; cursor: pointer; }
+#c_widget .c-catalogOpen { display: flex; align-items: center; justify-content: center; min-height: 120px; }
+#c_widget .c-catalogOpen img, #c_widget .c-catalogOpen video { max-width: 150px; max-height: 150px; object-fit: contain; }
+#c_widget .c-catalogNoMedia { border: 1px dashed var(--c-button-border); font-size: 12px; color: inherit; }
+#c_widget .c-catalogStats { font-size: 11px; line-height: 18px; font-weight: bold; }
+#c_widget .c-catalogText { font-size: 11px; max-height: 130px; overflow: auto; }
+
+#c_widget .c-mediaDialog { box-sizing: border-box; width: min(600px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; background: var(--c-button-bg); color: var(--c-button-color); border: 1px solid var(--c-button-border); padding: 16px; }
+#c_widget .c-mediaDialog::backdrop { background: rgb(0 0 0 / 55%); }
+#c_widget .c-mediaDialog h2 { font-size: 18px; margin: 0 0 12px; }
+#c_widget .c-mediaDialog textarea { display: block; box-sizing: border-box; width: 100%; margin-top: 6px; }
+#c_widget .c-mediaCount { margin-left: 6px; }
+#c_widget .c-mediaError { font-weight: bold; }
+#c_widget .c-mediaPreviews { display: grid; gap: 10px; }
+#c_widget .c-mediaPreview { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--c-button-border); }
+#c_widget .c-mediaPreview img, #c_widget .c-mediaPreview video { width: 100px; height: 80px; object-fit: contain; }
+#c_widget .c-mediaPreview span { flex: 1; min-width: 100px; overflow-wrap: anywhere; }
+#c_widget .c-mediaActions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+
+@media (max-width: 480px) {
+  #c_widget .c-catalogCard { width: calc(50% - 10px); }
+  #c_widget .c-catalogOpen img, #c_widget .c-catalogOpen video { max-width: 100%; }
+}
+
 #c_widget .c-commentThread {
   margin: 0;
   clear: both;
@@ -114,6 +146,7 @@
 
 #c_widget .c-postContainer {
   width: 100%;
+  box-sizing: border-box;
 }
 
 #c_widget .replyContainer.c-postContainer {
@@ -126,7 +159,8 @@
 }
 
 #c_widget .c-post.reply.post {
-  padding: 10px 20px;
+  padding: 2px;
+  max-width: 100%;
 }
 
 #c_widget .c-postTools {
@@ -438,6 +472,11 @@
 }
 
 @media (max-width: 700px) {
+  #c_widget .c-post .postInfo.desktop { display: none !important; }
+  #c_widget .c-post .postInfoM.mobile { display: block !important; }
+  #c_widget .replyContainer.c-postContainer { padding-left: min(calc(var(--c-reply-indent-level, 0) * 8px), 32px); }
+  #c_widget .c-collageGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #c_widget .c-post { overflow-wrap: anywhere; }
   #c_widget_wrap {
     margin: 18px auto 28px;
   }
