@@ -41,6 +41,11 @@ export function sanitizeImageUrls(value) {
     });
 }
 
+export function isVideoUrl(url) {
+    try { return /\.(mp4|webm|mov|ogg)$/i.test(new URL(url, window.location.href).pathname) }
+    catch { return false }
+}
+
 export function sanitizeSingleImageUrl(value) {
     const imageUrl = String(value || '').trim();
     if (!imageUrl) { return '' }

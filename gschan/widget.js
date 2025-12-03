@@ -5,6 +5,7 @@ import { ensureStylesheet, getThemeHref, getStoredTheme, setBoardTheme } from '.
 import { fetchComments } from './comments.js';
 import { displayComments } from './display.js';
 import { openReply, setReplyPrefix } from './reply.js';
+import { createMediaUploader } from './media-uploader.js';
 
 export const stylePath  = new URL('./comment-widget.css', import.meta.url).href;
 export const themePaths = {
@@ -105,7 +106,8 @@ export function createWidget(userConfig) {
             <div id="c_inputDiv" class="c-inputDiv">
                 <form id="c_form" method="post" action="https://docs.google.com/forms/d/e/${cfg.formId}/formResponse"></form>
             </div>
-            <div id="c_container" class="c_container">${cfg.loadingText}</div>
+            <nav class="c-boardControls" aria-label="Board view">[<button type="button" data-board-catalog aria-pressed="false">Catalog</button>]</nav>
+            <div id="c_container" class="board c_container">${cfg.loadingText}</div>
         </section>
     `;
 
@@ -126,8 +128,8 @@ export function createWidget(userConfig) {
                     <td><textarea class="c-input c-textInput" name="entry.${cfg.textId}" id="entry.${cfg.textId}" rows="4" cols="50" maxlength="${cfg.maxLength}" required></textarea></td>
                 </tr>
                 <tr>
-                    <td class="postblock"><label for="entry.${cfg.imageId}">${cfg.imageFieldLabel}</label></td>
-                    <td><input class="c-input c-imageInput" name="entry.${cfg.imageId}" id="entry.${cfg.imageId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://example.com/image.jpg or [url1][url2]"></td>
+                    <td class="postblock">Media</td>
+                    <td><input class="c-imageInput" name="entry.${cfg.imageId}" id="entry.${cfg.imageId}" type="hidden"></td>
                 </tr>
                 <tr>
                     <td class="postblock">Status</td>
@@ -155,6 +157,8 @@ export function createWidget(userConfig) {
 
     if (cfg.commentsOpen) {
         form.innerHTML = formHtml;
+        const imageInput = document.getElementById(`entry.${cfg.imageId}`);
+        imageInput.parentElement.appendChild(createMediaUploader({ input: imageInput }));
     } else {
         form.innerHTML = `<div class="globalMessage c-closedMessage">${cfg.closedCommentsText}</div>`;
     }
@@ -206,6 +210,7 @@ export function createWidget(userConfig) {
         amountOfPages: 1,
         allComments: [],
         commentDivs: [],
+        catalogMode: false,
     };
 
     // ── Reply callback ────────────────────────────────────────────────────────────
@@ -216,6 +221,7 @@ export function createWidget(userConfig) {
     // ── Display context ───────────────────────────────────────────────────────────
     const displayCtx = {
         container,
+        catalogControl: widgetRoot.querySelector('[data-board-catalog]'),
         commentsPerPage:  cfg.commentsPerPage,
         noCommentsText:   cfg.noCommentsText,
         leftButtonText:   cfg.leftButtonText,
@@ -230,6 +236,11 @@ export function createWidget(userConfig) {
         },
         onReply,
     };
+
+    displayCtx.catalogControl.addEventListener('click', () => {
+        state.catalogMode = !state.catalogMode;
+        displayComments(state.allComments, displayCtx, state);
+    });
 
     // ── Fetch context ─────────────────────────────────────────────────────────────
     const fetchCtx = {
@@ -286,6 +297,7 @@ export function createWidget(userConfig) {
             document.getElementById(`entry.${cfg.websiteId}`).value = '';
             document.getElementById(`entry.${cfg.textId}`).value    = '';
             document.getElementById(`entry.${cfg.imageId}`).value   = '';
+            document.getElementById(`entry.${cfg.imageId}`).dispatchEvent(new Event('change'));
             if (textInput) { textInput.dataset.replyPrefix = '' }
         }
 
@@ -294,11 +306,7 @@ export function createWidget(userConfig) {
             (comments) => {
                 state.allComments = comments;
 
-                if (comments.length === 0 || Object.keys(comments[0]).length < 2) {
-                    container.innerHTML = cfg.noCommentsText;
-                } else {
-                    displayComments(comments, displayCtx, state);
-                }
+                displayComments(comments, displayCtx, state);
 
                 submitButton.disabled = false;
             },
