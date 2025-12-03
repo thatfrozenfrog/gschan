@@ -16,6 +16,9 @@ if (root.dataset.pageShellMounted === '1') {
 } else {
   root.dataset.pageShellMounted = '1';
 
+  const navigation = document.getElementById('boardNavDesktop');
+  if (navigation) navigation.innerHTML = NAV_LINKS;
+
   const header = document.getElementById('page-header') || document.getElementById('page-banner');
   if (header) header.innerHTML = `
   <div class="boardBanner">
@@ -30,6 +33,6 @@ if (root.dataset.pageShellMounted === '1') {
   if (footer) footer.innerHTML = `
   <hr>
   <div id="boardNavDesktopFoot">${NAV_LINKS}</div>
-  <div id="absbot">example.com</div>
+  <div id="absbot">example.com · <a href="/licenses/yotsuba.txt">Yotsuba attribution</a></div>
 `;
 }
