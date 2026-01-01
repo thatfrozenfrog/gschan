@@ -536,6 +536,7 @@ div#boardNavDesktop {
 	font-size: 9pt;
 	color: #B86;
 	display: block;
+	text-align: center;
 }
 
 .hasDropDownNav #navtopright {
