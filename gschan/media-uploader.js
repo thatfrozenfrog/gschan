@@ -70,6 +70,8 @@ export function createMediaUploader({ input, onChange = () => {} }) {
             const row = document.createElement('div');
             row.className = 'c-mediaPreview';
             const validation = validateHotlink(url);
+            const label = document.createElement('span');
+            label.textContent = `${validation.valid ? '' : 'Invalid URL: '}${url}`;
             if (validation.valid) {
                 const media = document.createElement(validation.kind === 'video' ? 'video' : 'img');
                 media.src = url;
@@ -82,8 +84,6 @@ export function createMediaUploader({ input, onChange = () => {} }) {
                 });
                 row.appendChild(media);
             }
-            const label = document.createElement('span');
-            label.textContent = `${validation.valid ? '' : 'Invalid URL: '}${url}`;
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.textContent = 'Remove';
