@@ -4,7 +4,7 @@
 const NAV_LINKS = `
   [<a href="/">Home</a>]
   [<a href="/pages/news.html">News</a>]
-  [<a href="https://blog.example.com" target="_blank" rel="noopener noreferrer">Blog</a>]
+  [<a href="/pages/blog.html">Blog</a>]
   [<a href="/pages/faq.html">FAQ</a>]
   [<a href="/pages/rules.html">Rules</a>]
   [<a href="/pages/support.html">Support</a>]
@@ -16,8 +16,19 @@ if (root.dataset.pageShellMounted === '1') {
 } else {
   root.dataset.pageShellMounted = '1';
 
-  const navigation = document.getElementById('boardNavDesktop');
-  if (navigation) navigation.innerHTML = NAV_LINKS;
+  let navigation = document.getElementById('boardNavDesktop');
+  if (!navigation) {
+    navigation = document.createElement('div');
+    navigation.id = 'boardNavDesktop';
+    navigation.setAttribute('aria-label', 'Site navigation');
+    const pageBoard = document.querySelector('.page-board');
+    if (pageBoard) {
+      pageBoard.insertBefore(navigation, pageBoard.firstChild);
+    } else {
+      document.body.insertBefore(navigation, document.body.firstChild);
+    }
+  }
+  navigation.innerHTML = NAV_LINKS;
 
   const header = document.getElementById('page-header') || document.getElementById('page-banner');
   if (header) header.innerHTML = `
