@@ -92,6 +92,21 @@ div#boardNavDesktopFoot {
   font-weight: bold;
 }
 
+#postFormError {
+  display: none;
+  background-color: #e62020;
+  color: #fff;
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 3px 5px;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.2);
+  margin-top: 4px;
+  text-align: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
 #c_widget #c_submitButton,
 #c_widget .c-replyButton,
 #c_widget .c-paginationButton {

@@ -6,6 +6,7 @@ import { fetchComments } from './comments.js';
 import { displayComments } from './display.js';
 import { openReply, setReplyPrefix } from './reply.js';
 import { createMediaUploader } from './media-uploader.js';
+import { sanitizeImageUrls } from './utils.js';
 
 export const stylePath  = new URL('./comment-widget.css', import.meta.url).href;
 export const themePaths = {
@@ -36,6 +37,8 @@ export function createWidget(userConfig) {
         maxLength:            500,
         maxLengthName:        16,
         commentsOpen:         true,
+        allowPostWithoutEmbed: true,
+        embedRequiredText:    'An embed is required to start a new thread.',
         collapsedReplies:     false,
         longTimestamp:        false,
         includeUrlParameters: false,
@@ -140,6 +143,7 @@ export function createWidget(userConfig) {
                 </tr>
             </tbody>
         </table>
+        <div id="postFormError"></div>
     `;
 
     // ── Mount root ────────────────────────────────────────────────────────────────
@@ -166,6 +170,26 @@ export function createWidget(userConfig) {
     // ── DOM refs ──────────────────────────────────────────────────────────────────
     const submitButton  = cfg.commentsOpen ? document.getElementById('c_submitButton') : document.createElement('button');
     const textInput     = cfg.commentsOpen ? document.getElementById(`entry.${cfg.textId}`) : null;
+    const imageInput    = cfg.commentsOpen ? document.getElementById(`entry.${cfg.imageId}`) : null;
+    const formErrorEl   = cfg.commentsOpen ? document.getElementById('postFormError') : null;
+
+    const showFormError = (msg) => {
+        if (formErrorEl) {
+            formErrorEl.textContent = msg;
+            formErrorEl.style.display = 'block';
+        }
+    };
+    const clearFormError = () => {
+        if (formErrorEl) {
+            formErrorEl.textContent = '';
+            formErrorEl.style.display = 'none';
+        }
+    };
+
+    if (cfg.commentsOpen) {
+        form.addEventListener('input', clearFormError);
+        form.addEventListener('change', clearFormError);
+    }
     const replyingTextEl = document.getElementById('c_replyingText') || (() => {
         const el = document.createElement('span');
         el.style.display = 'none';
@@ -215,6 +239,7 @@ export function createWidget(userConfig) {
 
     // ── Reply callback ────────────────────────────────────────────────────────────
     const onReply = !cfg.commentsOpen ? () => {} : (postNumber, name) => {
+        clearFormError();
         openReply(postNumber, name, { replyInput, replyingTextEl, replyingTextLabel: cfg.replyingText, textInput, inputDiv });
     };
 
@@ -260,6 +285,17 @@ export function createWidget(userConfig) {
     if (cfg.commentsOpen) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+
+            const isReply = Boolean(replyInput && replyInput.value.trim()) || Boolean(textInput && textInput.value.trim().match(/^>>\d+/));
+            const hasEmbed = Boolean(imageInput && sanitizeImageUrls(imageInput.value).length > 0);
+
+            if (!isReply && cfg.allowPostWithoutEmbed === false && !hasEmbed) {
+                showFormError(cfg.embedRequiredText || 'An embed is required to start a new thread.');
+                submitButton.disabled = false;
+                return;
+            }
+
+            clearFormError();
             submitButton.disabled = true;
 
             const nameInput = document.getElementById(`entry.${cfg.nameId}`);
@@ -291,6 +327,7 @@ export function createWidget(userConfig) {
         // Reset reply state
         replyingTextEl.style.display = 'none';
         replyInput.value = '';
+        clearFormError();
 
         if (cfg.commentsOpen) {
             document.getElementById(`entry.${cfg.nameId}`).value    = '';
