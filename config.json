@@ -12,6 +12,7 @@
   "maxLength": 500,
   "maxLengthName": 16,
   "commentsOpen": true,
+  "allowPostWithoutEmbed": false,
   "collapsedReplies": false,
   "longTimestamp": false,
   "includeUrlParameters": false,
