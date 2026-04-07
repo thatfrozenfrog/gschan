@@ -1,0 +1,153 @@
+# ==============================================================================
+# gschan - Imageboard / Comment Widget Configuration
+# ==============================================================================
+# This configuration file controls the backend connection, board identity,
+# posting rules, appearance, moderation, and UI text for your board.
+#
+# Tip: Quote all Google entry IDs and sheet/form IDs as strings (e.g. "123456").
+# ==============================================================================
+
+# ==============================================================================
+# 1. Google Forms & Sheets Backend
+# ==============================================================================
+# gschan uses Google Forms as a submission API and a linked Google Sheet as its
+# public database. Comments are fetched directly from the sheet's public visualization feed.
+
+# The Google Form ID.
+# Found in your Google Form URL: https://docs.google.com/forms/d/e/<formId>/viewform
+formId: "YOUR_GOOGLE_FORM_ID"
+
+# The Google Sheet ID linked to the Google Form responses.
+# Found in your Google Sheet URL: https://docs.google.com/spreadsheets/d/<sheetId>/edit
+# Ensure the Google Sheet is shared as "Anyone with the link can view".
+sheetId: "YOUR_GOOGLE_SHEET_ID"
+
+# Google Form Entry IDs (entry.XXXXX).
+# To find these IDs, open your Google Form in a browser, click the three dots ->
+# "Get pre-filled link", fill dummy data, click "Get link", and inspect the URL query params.
+nameId: "1000000001"          # Text field for poster's name / tripcode
+websiteId: "1000000002"      # Text field for optional website/link
+textId: "1000000003"          # Textarea field for comment content
+pageId: "1000000004"         # Hidden field storing page path (for multi-page / threads)
+replyId: "1000000005"         # Hidden field storing parent post number when replying
+imageId: "1000000006"        # Hidden field storing image/media URLs [url1][url2]
+
+
+# ==============================================================================
+# 2. Board Identity & Branding
+# ==============================================================================
+# Titles and subtitles shown on the board header and across site pages.
+
+widgetTitle: "example.com"
+widgetBannerTitle: "/gs/ - gschan"
+widgetBannerSubtitle: "no way gschan built the xite himself o algo"
+
+
+# ==============================================================================
+# 3. Posting Rules & Behavior
+# ==============================================================================
+# Global toggles and limits for user submissions.
+
+# Open or temporarily close the board for new comments/threads.
+commentsOpen: true
+
+# If false, users MUST attach at least one image or video embed to create a new thread.
+# Replies to existing threads do not require an embed.
+allowPostWithoutEmbed: false
+
+# Error message displayed when a user tries to start a thread without media.
+embedRequiredText: "An embed is required to start a new thread."
+
+# Maximum character count for comment text.
+maxLength: 500
+
+# Maximum character count for user name.
+maxLengthName: 16
+
+# Collapse thread replies behind an "expand" toggle by default.
+collapsedReplies: false
+
+
+# ==============================================================================
+# 4. Appearance & Themes
+# ==============================================================================
+# Theme styles and pagination controls.
+
+# Default board theme.
+# Options:
+#   - "yotsuba"   : Classic Futaba / 4chan light red theme
+#   - "tomorrow"  : Dark grey / modern dark theme
+#   - "photon"    : Minimalist light blue theme
+#   - "book"      : Warm parchment / retro Futaba style
+defaultTheme: "yotsuba"
+
+# Number of top-level threads/comments displayed per page.
+commentsPerPage: 5
+
+# Show full timestamp (e.g. "January 1, 2026 12:00:00 AM") instead of compact (e.g. "01/01/26(Thu)12:00:00").
+longTimestamp: false
+
+
+# ==============================================================================
+# 5. Content Filtering & Moderation
+# ==============================================================================
+# Client-side word filter applied when comments are rendered.
+
+# Enable or disable the word filter.
+wordFilterOn: true
+
+# Replacement text inserted in place of filtered words.
+filterReplacement: "**CENSORED**"
+
+# List of words or phrases to filter (case-insensitive word-boundary matching).
+filteredWords:
+  - "soyjak"
+  - "suika"
+
+
+# ==============================================================================
+# 6. Tripcode Roles & Badges
+# ==============================================================================
+# Maps tripcode hashes (from Name#secret input) to administrative badges.
+# Format: '!<HASH>': 'BADGE_NAME'
+# Example: '!EXAMPLE_TRIP': 'ADMIN' renders as: Name ◆ ADMIN
+tripcodeLabels:
+  "!EXAMPLE_TRIP": "ADMIN"
+
+
+# ==============================================================================
+# 7. UI Labels & Localization
+# ==============================================================================
+# Custom text strings used throughout the comment widget interface.
+
+# Form field labels
+nameFieldLabel: "Name"
+websiteFieldLabel: "Website"
+imageFieldLabel: "Image URL"
+textFieldLabel: ""             # If empty, defaults to "Comment"
+submitButtonLabel: "Submit"
+
+# Status & banner messages
+loadingText: "Loading comments..."
+noCommentsText: "No comments yet!"
+closedCommentsText: "Comments are closed temporarily!"
+
+# Interaction buttons & indicators
+replyButtonText: "Reply"
+replyingText: "Replying to"
+expandRepliesText: "Show Replies"
+leftButtonText: "<<"
+rightButtonText: ">>"
+themeLabelText: "Theme"
+
+
+# ==============================================================================
+# 8. Advanced & Compatibility Settings
+# ==============================================================================
+
+# Include URL query parameters in page identification.
+# If true, "?page=1" and "?page=2" have distinct comment threads.
+includeUrlParameters: false
+
+# Compatibility fix for Rarebit webcomic engine where home page is "?pg=1".
+fixRarebitIndexPage: false
