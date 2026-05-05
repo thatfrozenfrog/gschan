@@ -27,7 +27,7 @@ const s_themePaths = themePaths;
 
 /**
  * Initialize the comment widget.
- * @param {object} userConfig — All user-facing settings (see config.json).
+ * @param {object} userConfig — All user-facing settings (see config.yaml).
  */
 export function createWidget(userConfig) {
     // ── Merge defaults ──────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
 // that needs to stay in sync with the comment widget's selected skin.
 
 import { getStoredTheme, ensureStylesheet } from './theme.js';
-import config from '../config.json';
+import config from '../config.yaml';
 
 const themes = {
     photon:   new URL('./skin/photon.css', import.meta.url).href,
