@@ -1,7 +1,7 @@
 // gschan/page-shell.js — Injects the shared site header and footer into every page.
 // Pages must have <div id="page-header"></div> and <div id="page-footer"></div>.
 
-import config from '../config.json';
+import config from '../config.yaml';
 
 const NAV_LINKS = `
   [<a href="/">Home</a>]
