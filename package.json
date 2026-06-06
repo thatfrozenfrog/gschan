@@ -7,13 +7,15 @@
     "test": "vitest run --config vitest.config.js",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup": "node setup.ts"
   },
   "devDependencies": {
     "@modyfi/vite-plugin-yaml": "^1.1.1",
     "jsdom": "^30.0.1",
     "vite": "^7.3.1",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.1"
   },
   "dependencies": {
     "tripcode": "^4.0.0",
