@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import viteBundleObfuscator from 'vite-plugin-bundle-obfuscator';
+import ViteYaml from '@modyfi/vite-plugin-yaml';
 import { resolve } from 'node:path';
 
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
         },
     },
     plugins: [
+        ViteYaml(),
         viteBundleObfuscator({
             stringArrayEncoding: 'base64',
         })
