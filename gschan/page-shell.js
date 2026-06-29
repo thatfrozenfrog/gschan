@@ -50,6 +50,6 @@ if (root.dataset.pageShellMounted === '1') {
   if (footer) footer.innerHTML = `
   <hr>
   <div id="boardNavDesktopFoot">${NAV_LINKS}</div>
-  <div id="absbot">${siteTitle} · <a href="/licenses/yotsuba.txt">Yotsuba attribution</a></div>
+  <div id="absbot">${siteTitle}</div>
 `;
 }

@@ -1,5 +1,4 @@
-/* Board geometry adapted from Yotsuba css/yotsubanew.css and
-   css/yotsubamobile.css, 2026-09-16, GPL v3; /licenses/yotsuba.txt. */
+/* Board geometry */
 #boardNavDesktop,
 div#boardNavDesktop,
 #boardNavDesktopFoot,
@@ -136,8 +135,7 @@ div#boardNavDesktopFoot {
   gap: 10px;
 }
 
-/* Catalog dimensions adapted from Yotsuba css/catalog_yotsuba_new.css.
-   Snapshot and GPL-3.0 attribution: public/licenses/yotsuba.txt. */
+/* Catalog dimensions */
 #c_widget .c-boardControls { border-block: 1px solid var(--c-button-border); padding: 5px 0; }
 #c_widget .c-boardControls button { color: inherit; font: inherit; background: none; border: 0; padding: 0 3px; cursor: pointer; text-decoration: underline; }
 #c_widget .c-catalog { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 20px 10px; padding: 15px 0; }
