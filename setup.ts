@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// setup.ts — Beautiful interactive TUI setup wizard for gschan
-// Run via: pnpm run setup   or   node setup.ts
 
 import readline from 'node:readline/promises';
 import process from 'node:process';
@@ -46,7 +44,7 @@ export function drawBox(title: string, lines: string[], color = c.cyan): string 
   const cleanLen = (str: string) => str.replace(/\x1b\[[0-9;]*m/g, '').length;
   const contentWidth = Math.max(cleanLen(title) + 4, ...lines.map(cleanLen), 64);
   
-  const top = `${color}╭─ ${c.bold}${title}${c.reset}${color} ${'─'.repeat(Math.max(0, contentWidth - cleanLen(title) - 3))}╮${c.reset}`;
+  const top = `${color}╭─ ${c.bold}${title}${c.reset}${color} ${'─'.repeat(Math.max(0, contentWidth - cleanLen(title) - 1))}╮${c.reset}`;
   const bottom = `${color}╰${'─'.repeat(contentWidth + 2)}╯${c.reset}`;
   
   const formattedLines = lines.map(line => {
@@ -64,12 +62,9 @@ export function stepHeader(step: string, total: string, title: string): string {
 
 export function printBanner(): void {
   const banner = `
-${c.cyan}  ____ ___  ____ _   _    _    _   _ 
- / ___/ ___|/ ___| | | |  / \\  | \\ | |
-| |  _\\___ \\ |   | |_| | / _ \\ |  \\| |
-| |_| |___) | |___ | _ |/ ___ \\| |\\  |
- \\____|____/ \\____|_| |_/_/   \\_\\_| \\_|${c.reset}
-
+${c.cyan}
+                      __                          \n                     /\\ \\                         \n   __     ____    ___\\ \\ \\___      __      ___    \n /\'_ \`\\  /\',__\\  /\'___\\ \\  _ \`\\  /\'__\`\\  /\' _ \`\\  \n/\\ \\L\\ \\/\\__, \`\\/\\ \\__/\\ \\ \\ \\ \\/\\ \\L\\.\\_/\\ \\/\\ \\ \n\\ \\____ \\/\\____/\\ \\____\\\\ \\_\\ \\_\\ \\__/.\\_\\ \\_\\ \\_\\\n \\/___L\\ \\/___/  \\/____/ \\/_/\\/_/\\/__/\\/_/\\/_/\\/_/\n   /\\____/                                        \n   \\_/__/                                         \n                                                     
+${c.reset}
 ${c.bold}${c.white} Google Sheets & Forms Powered Imageboard Engine${c.reset}
 ${c.gray} Interactive Setup Wizard • https://github.com/thatfrozenfrog/gschan${c.reset}
 `;
