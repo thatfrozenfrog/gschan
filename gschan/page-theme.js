@@ -6,10 +6,14 @@ import { getStoredTheme, ensureStylesheet } from './theme.js';
 import config from '../config.yaml';
 
 const themes = {
-    photon:   new URL('./skin/photon.css', import.meta.url).href,
+    yotsuba:  new URL('./skin/yotsuba.css',  import.meta.url).href,
+    yotsubab: new URL('./skin/yotsubab.css', import.meta.url).href,
+    futaba:   new URL('./skin/futaba.css',   import.meta.url).href,
+    burichan: new URL('./skin/burichan.css', import.meta.url).href,
     tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
-    yotsuba:  new URL('./skin/yotsuba.css', import.meta.url).href,
-    book:     new URL('./skin/futaba.css', import.meta.url).href,
+    photon:   new URL('./skin/photon.css',   import.meta.url).href,
+    spooky:   new URL('./skin/spooky.css',   import.meta.url).href,
+    book:     new URL('./skin/futaba.css',   import.meta.url).href,
 };
 
 const defaultTheme = (config && config.defaultTheme) || 'yotsuba';

@@ -72,10 +72,13 @@ collapsedReplies: false
 
 # Default board theme.
 # Options:
-#   - "yotsuba"   : Classic Futaba / 4chan light red theme
+#   - "yotsuba"   : Classic Futaba / 4chan light red/peach theme
+#   - "yotsubab"  : Classic 4chan light blue theme (SFW boards)
+#   - "futaba"    : Retro Futaba Channel style
+#   - "burichan"  : Classic Burichan blue theme
 #   - "tomorrow"  : Dark grey / modern dark theme
 #   - "photon"    : Minimalist light blue theme
-#   - "book"      : Warm parchment / retro Futaba style
+#   - "spooky"    : Halloween dark orange / black theme
 defaultTheme: "yotsuba"
 
 # Number of top-level threads/comments displayed per page.

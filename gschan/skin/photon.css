@@ -122,7 +122,7 @@ hr#op, #ctrl-top { clear: both; }
   display: inline-block;
   width: 16px;
   height: 16px;
-  background: url('//s.4cdn.org/image/minileaf.gif');
+  background: url('/img/minileaf.gif');
 }
 
 .n-pu {
@@ -131,7 +131,7 @@ hr#op, #ctrl-top { clear: both; }
   width: 16px;
   height: 16px;
   margin-top: -2px;
-  background: url('//s.4cdn.org/image/minileaf.gif');
+  background: url('/img/minileaf.gif');
 }
 
 .jla-it {

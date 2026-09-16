@@ -10,9 +10,13 @@ import { sanitizeImageUrls } from './utils.js';
 
 export const stylePath  = new URL('./comment-widget.css', import.meta.url).href;
 export const themePaths = {
-    photon:   new URL('./skin/photon.css',   import.meta.url).href,
-    tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
     yotsuba:  new URL('./skin/yotsuba.css',  import.meta.url).href,
+    yotsubab: new URL('./skin/yotsubab.css', import.meta.url).href,
+    futaba:   new URL('./skin/futaba.css',   import.meta.url).href,
+    burichan: new URL('./skin/burichan.css', import.meta.url).href,
+    tomorrow: new URL('./skin/tomorrow.css', import.meta.url).href,
+    photon:   new URL('./skin/photon.css',   import.meta.url).href,
+    spooky:   new URL('./skin/spooky.css',   import.meta.url).href,
     book:     new URL('./skin/futaba.css',   import.meta.url).href,
 };
 
@@ -97,10 +101,13 @@ export function createWidget(userConfig) {
                 <div class="c-themeConfig">
                     <label class="c-themeLabel" for="c_themeSelect">${cfg.themeLabelText}</label>
                     <select id="c_themeSelect" class="c-themeSelect" aria-label="Theme selector">
-                        <option value="photon">photon.css</option>
-                        <option value="tomorrow">tomorrow.css</option>
-                        <option value="yotsuba">yotsuba.css</option>
-                        <option value="book">futaba.css</option>
+                        <option value="yotsuba">Yotsuba</option>
+                        <option value="yotsubab">Yotsuba B</option>
+                        <option value="futaba">Futaba</option>
+                        <option value="burichan">Burichan</option>
+                        <option value="tomorrow">Tomorrow</option>
+                        <option value="photon">Photon</option>
+                        <option value="spooky">Spooky</option>
                     </select>
                 </div>
                 <div class="boardTitle">${cfg.widgetBannerTitle}</div>

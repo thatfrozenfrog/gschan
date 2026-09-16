@@ -1,0 +1,168 @@
+.p-xa24-SICP .postMessage,
+.p-xa24-SICP .name {
+  font-family: monospace;
+}
+
+.p-xa24-WOJK {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.p-xa24-WOJK + .p-xa24-WOJK {
+  margin-top: -10px;
+}
+
+.tomorrow .p-xa24-CIA .name {
+  text-shadow: 0 0 20px rgb(152, 253, 115);
+}
+
+.p-xa24-BANE .postMessage {
+  font-size: 110%;
+}
+
+.p-xa24-CHAD {
+  filter: grayscale(50%);
+}
+
+.p-xa24-RDDT .sideArrows::before {
+  content: '';
+  position: absolute;
+  margin-top: 20px;
+  width: 17px;
+  height: 48px;
+  background-image: url('/img/emotes/xa24_arrows.png');
+  cursor: pointer;
+}
+
+.p-xa24-CLOWN span.quote {
+  background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: #00000040;
+}
+
+.p-xa24-DESU .xa24desu::before {
+  content: 'DE';
+  font-weight: bold;
+  color: #ce2626;
+}
+
+.p-xa24-DESU .xa24desu::after {
+  content: 'SU';
+  font-weight: bold;
+  color: #32ae4c;
+}
+
+.p-xa24-DESU .xa24desu {
+  margin-top: 4px;
+}
+
+.n-xa24 {
+  width: 32px;
+  height: 32px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 16px;
+}
+
+.n-xa24-PEPE {
+  background-image: url('/img/emotes/59b6bba6_FeelsBadMan.png');
+}
+
+.n-xa24-WOJK {
+  background-image: url('/img/emotes/wojak_front.png');
+}
+
+.n-xa24-ANIME {
+  background-image: url('/img/emotes/f93f9e5a_AYAYA.png');
+}
+
+.n-xa24-ANIME:hover {
+  background-image: url('/img/emotes/bc1ff2b8_AYAYAHyper.png');
+}
+
+.n-xa24-CHAD {
+  background-image: url('/img/emotes/7a95728b_Gigachad.png');
+}
+
+.n-xa24-CLOWN {
+  background-image: url('/img/emotes/8ea2d160_peepoClown.png');
+}
+
+.n-xa24-LOL::after {
+  content: '😂';
+  font-size: 20px;
+}
+
+.n-xa24-SICP {
+  width: 20px;
+  height: 20px;
+}
+
+.n-xa24-SICP::after {
+  content: 'λ';
+  background-color: #fff;
+  font-size: 20px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 20px;
+  color: #000;
+}
+
+.n-xa24-AUTSM {
+  background-image: url('/img/emotes/xa24_puzzle.png');
+}
+
+.n-xa24-BANE {
+  background-image: url('/img/emotes/c458ef22_bane.png');
+}
+
+.n-xa24-CIA {
+  background-image: url('/img/emotes/c69a1ef1_cia.png');
+}
+
+.tomorrow .n-xa24-CIA {
+  box-shadow: 0px 0px 10px 10px rgba(152, 253, 115, 0.15);
+}
+
+.n-xa24-BOOB {
+  background-image: url('/img/emotes/BOOBA.png');
+}
+
+.n-xa24-RDDT {
+  background-image: url('/img/emotes/xa24_rddt.png');
+}
+
+.n-xa24-DESU {
+  background-image: url('/img/emotes/xa24_desu.png');
+}
+
+.n-xa24-JANNY {
+  background-image: url('/img/emotes/f0dcbf8a_jannydog.png');
+}
+
+.n-xa24-GME::after {
+  content: '🎮';
+  font-size: 22px;
+}
+
+.n-xa24-CHUCK {
+  background-image: url('/img/emotes/xa24_sneed.png');
+}
+
+.n-xa24-YTSB {
+  background-image: url('/img/emotes/1d7e369a_koiwai.png');
+}
+
+.n-xa24-GACHI {
+  background-image: url('/img/emotes/c291d202_gachiGASM.png');
+}
+
+.n-xa24-GACHI:hover {
+  background-image: url('/img/emotes/634a21ba_gachiHYPER.png');
+}
