@@ -38,7 +38,8 @@
   <a href="#google-backend-setup">Google Setup</a> •
   <a href="#configuration">Configuration</a> •
   <a href="#themes--skins">Themes</a> •
-  <a href="#deployment">Deployment</a>
+  <a href="#deployment">Deployment</a> •
+  <a href="#contributors">Contributors</a>
 </p>
 
 </div>
@@ -60,25 +61,35 @@ Whether you want to embed a 4chan-style comment section into your website, run a
 
 ---
 
-## Key Features
+### Features
 
-- ⚡ **Zero-Cost Serverless Architecture**: No VPS, backend containers, or SQL databases needed.
-- 🧙 **Interactive TUI Setup Wizard**: Run [`setup.ts`](setup.ts) (or `./SETUP.SH` / `SETUP.CMD`) to automatically parse your Google Form pre-filled link and verify live Google Sheet connectivity.
-- 🎨 **7 Built-in 4chan & Futaba Themes**:
-  - **Yotsuba** (Classic 4chan peach/red theme)
-  - **Yotsuba B** (Classic 4chan blue theme for SFW boards)
-  - **Futaba** (Classic 2chan / Futaba Channel style with serif typography)
-  - **Burichan** (Early classic blue theme)
-  - **Tomorrow** (Modern dark theme)
-  - **Photon** (Minimalist light blue/gray theme)
-  - **Spooky** (Halloween dark theme with pumpkin emoji indicators)
-- 📱 **Mobile Responsive**: Includes dedicated mobile stylesheets (`yotsubamobile.css`, `yotsubluemobile.css`) and responsive layout rules.
-- 🚩 **Country & Board Flags**: Built-in flag sprite sheet (`flags.css` & `flags.8.png`).
-- 🗂️ **Catalog & Thread Views**: Full board catalog with thumbnail grid, reply counters, and smooth jump animations (`>>12345`).
-- 🔒 **Tripcode Authentication & Badges**: 4chan-compatible `Name#password` tripcode generator with configurable badge labels (e.g. `ADMIN`, `MOD`, `VIP`).
-- 🛡️ **Client-Side Moderation**: Built-in word filter (`filteredWords`, `filterReplacement`) and posting permissions toggle (`allowPostWithoutEmbed`).
-- 🖼️ **Rich Media Attachments**: Multiple media links, image modal expander, and video embeds.
-- 📝 **YAML Configuration**: Clean, fully documented [`config.yaml`](config.yaml) controls all board behaviors, appearance, and text labels.
+* **Zero-cost serverless architecture**. No VPS, backend containers, or SQL database are required.
+
+* **Interactive TUI setup wizard**. Run [`setup.ts`](setup.ts), `./SETUP.SH`, or `./SETUP.CMD` to parse a Google Form pre-filled link and verify that the Google Sheet connection is working.
+
+* **Seven built-in 4chan/Futaba themes**:
+
+  * **Yotsuba**: Classic 4chan peach/red theme.
+  * **Yotsuba B**: Classic blue theme used by SFW boards.
+  * **Futaba**: 2chan/Futaba Channel-style theme with serif typography.
+  * **Burichan**: Early classic blue theme.
+  * **Tomorrow**: Dark theme.
+  * **Photon**: Minimal light blue/gray theme.
+  * **Spooky**: Halloween-themed dark variant.
+
+* **Mobile support**. Includes dedicated mobile stylesheets such as `yotsubamobile.css` and `yotsubluemobile.css`, along with responsive layout rules.
+
+* **Country and board flags**. Includes a built-in flag sprite sheet through `flags.css` and `flags.8.png`.
+
+* **Catalog and thread views**. Provides a full board catalog with thumbnail grids, reply counters, and jump links such as `>>12345`.
+
+* **Tripcodes and badges**. Supports 4chan-compatible `Name#tripcode` tripcodes and configurable badge labels such as `ADMIN`, `MOD`, and `VIP`.
+
+* **Client-side moderation**. Includes a configurable word filter through `filteredWords` and `filterReplacement`, as well as a posting permissions toggle with `allowPostWithoutEmbed`.
+
+* **Rich media attachments**. Supports multiple media links, image expansion through a modal, and video embeds.
+
+* **YAML configuration**. [`config.yaml`](config.yaml) contains the board configuration, appearance settings, and UI text in one place, with the available options documented.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -375,13 +386,24 @@ Since `gschan` compiles to static HTML, CSS, and JavaScript, you can host it any
 
 ## Contributing
 
-Contributions, bug reports, and feature requests are welcome!
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: Add AmazingFeature'`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Top contributors:
+
+<a href="https://github.com/github_username/repo_name/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" />
+</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
