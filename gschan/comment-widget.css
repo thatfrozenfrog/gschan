@@ -84,6 +84,15 @@ div#boardNavDesktopFoot {
   resize: vertical;
 }
 
+#c_widget .c-mediaCell {
+  text-align: left;
+}
+
+#c_widget .c-mediaUploader {
+  display: inline-flex;
+  align-items: center;
+}
+
 #c_widget #c_replyingText {
   display: inline-block;
   margin-right: 10px;
@@ -241,19 +250,9 @@ div#boardNavDesktopFoot {
   animation: c-postFlash 1.6s ease;
 }
 
-#c_widget .c-nameSite {
-  color: #8f6fb5 !important;
+#c_widget .c-subject {
+  color: #cc0000 !important;
   font-weight: bold;
-  text-decoration: none;
-}
-
-#c_widget span.c-nameSite.useremail {
-  color: #0f0c5d !important;
-}
-
-#c_widget .c-nameSite:hover {
-  color: #6c47a3 !important;
-  text-decoration: underline;
 }
 
 #c_widget .c-fileAttachment {

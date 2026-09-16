@@ -75,7 +75,7 @@ ${c.gray} Interactive Setup Wizard • https://github.com/thatfrozenfrog/gschan$
 export interface ParsedFormConfig {
   formId?: string;
   nameId?: string;
-  websiteId?: string;
+  subjectId?: string;
   textId?: string;
   imageId?: string;
   pageId?: string;
@@ -107,8 +107,8 @@ export function parseGoogleFormUrl(input: string): ParsedFormConfig {
 
         if (norm.includes('NAME') || norm.includes('AUTHOR')) {
           result.nameId = id;
-        } else if (norm.includes('WEB') || norm.includes('SITE') || norm.includes('URL') || norm.includes('LINK')) {
-          result.websiteId = id;
+        } else if (norm.includes('SUBJECT') || norm.includes('TITLE')) {
+          result.subjectId = id;
         } else if (norm.includes('COMMENT') || norm.includes('TEXT') || norm.includes('MSG') || norm.includes('BODY') || norm.includes('MESSAGE')) {
           result.textId = id;
         } else if (norm.includes('MEDIA') || norm.includes('IMAGE') || norm.includes('IMG') || norm.includes('PIC') || norm.includes('PHOTO') || norm.includes('FILE')) {
@@ -241,14 +241,14 @@ ${c.cyan}Quick Guide: How to create your Google Form submission API:${c.reset}
   ${c.bold}1.${c.reset} Go to ${c.underline}https://forms.new${c.reset} and title your form (e.g. "My Board Posts").
   ${c.bold}2.${c.reset} Create these 6 questions (${c.dim}order does not matter${c.reset}):
      • ${c.green}Name${c.reset}     (Short answer)
-     • ${c.green}Website${c.reset}  (Short answer)
+     • ${c.green}Subject${c.reset}  (Short answer)
      • ${c.green}Comment${c.reset}  (Paragraph)
      • ${c.green}Media${c.reset}    (Short answer)
      • ${c.green}Page${c.reset}     (Short answer)
      • ${c.green}Reply${c.reset}    (Short answer)
   ${c.bold}3.${c.reset} Click the ${c.bold}⋮ (three dots)${c.reset} in the top-right → ${c.bold}"Get pre-filled link"${c.reset}.
   ${c.bold}4.${c.reset} Type the matching uppercase keyword into each question:
-     Name: ${c.yellow}NAME${c.reset}      Website: ${c.yellow}WEBSITE${c.reset}   Comment: ${c.yellow}COMMENT${c.reset}
+     Name: ${c.yellow}NAME${c.reset}      Subject: ${c.yellow}SUBJECT${c.reset}   Comment: ${c.yellow}COMMENT${c.reset}
      Media: ${c.yellow}MEDIA${c.reset}    Page: ${c.yellow}PAGE${c.reset}         Reply: ${c.yellow}REPLY${c.reset}
   ${c.bold}5.${c.reset} Click ${c.bold}"Get link"${c.reset} at the bottom, then click ${c.bold}"COPY LINK"${c.reset} and paste it below!
 `);
@@ -267,7 +267,7 @@ ${c.cyan}Quick Guide: How to create your Google Form submission API:${c.reset}
 
     // Field mapping
     updates.nameId = parsedForm.nameId || currentCfg.nameId || '';
-    updates.websiteId = parsedForm.websiteId || currentCfg.websiteId || '';
+    updates.subjectId = parsedForm.subjectId || currentCfg.subjectId || '';
     updates.textId = parsedForm.textId || currentCfg.textId || '';
     updates.imageId = parsedForm.imageId || currentCfg.imageId || '';
     updates.pageId = parsedForm.pageId || currentCfg.pageId || '';
@@ -275,7 +275,7 @@ ${c.cyan}Quick Guide: How to create your Google Form submission API:${c.reset}
 
     const fields = [
       { key: 'nameId', label: 'Name Field (entry.XXX)', val: updates.nameId },
-      { key: 'websiteId', label: 'Website Field (entry.XXX)', val: updates.websiteId },
+      { key: 'subjectId', label: 'Subject Field (entry.XXX)', val: updates.subjectId },
       { key: 'textId', label: 'Comment Field (entry.XXX)', val: updates.textId },
       { key: 'imageId', label: 'Media Field (entry.XXX)', val: updates.imageId },
       { key: 'pageId', label: 'Page Field (entry.XXX)', val: updates.pageId },
@@ -391,7 +391,7 @@ ${c.cyan}Quick Guide: How to link and share your Google Sheet database:${c.reset
       `${c.bold}Form ID:${c.reset}               ${updates.formId}`,
       `${c.bold}Sheet ID:${c.reset}              ${updates.sheetId}`,
       `${c.bold}Name Field:${c.reset}            entry.${updates.nameId}`,
-      `${c.bold}Website Field:${c.reset}         entry.${updates.websiteId}`,
+      `${c.bold}Subject Field:${c.reset}         entry.${updates.subjectId}`,
       `${c.bold}Comment Field:${c.reset}         entry.${updates.textId}`,
       `${c.bold}Media Field:${c.reset}           entry.${updates.imageId}`,
       `${c.bold}Page Field:${c.reset}            entry.${updates.pageId}`,

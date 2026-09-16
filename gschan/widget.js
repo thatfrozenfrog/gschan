@@ -56,7 +56,7 @@ export function createWidget(userConfig) {
         widgetBannerTitle:    '',
         widgetBannerSubtitle: '',
         nameFieldLabel:       'Name',
-        websiteFieldLabel:    'Website',
+        subjectFieldLabel:    'Subject',
         imageFieldLabel:      'Image URL',
         textFieldLabel:       '',
         submitButtonLabel:    'Submit',
@@ -130,8 +130,8 @@ export function createWidget(userConfig) {
                     <td><input class="c-input c-nameInput" name="entry.${cfg.nameId}" id="entry.${cfg.nameId}" type="text" maxlength="${cfg.maxLengthName}"></td>
                 </tr>
                 <tr>
-                    <td class="postblock"><label for="entry.${cfg.websiteId}">${cfg.websiteFieldLabel}</label></td>
-                    <td><input class="c-input c-websiteInput" name="entry.${cfg.websiteId}" id="entry.${cfg.websiteId}" type="text" inputmode="url" autocapitalize="off" spellcheck="false"></td>
+                    <td class="postblock"><label for="entry.${cfg.subjectId}">${cfg.subjectFieldLabel}</label></td>
+                    <td><input class="c-input c-subjectInput" name="entry.${cfg.subjectId}" id="entry.${cfg.subjectId}" type="text"></td>
                 </tr>
                 <tr>
                     <td class="postblock"><label for="entry.${cfg.textId}">${cfg.textFieldLabel || 'Comment'}</label></td>
@@ -139,7 +139,7 @@ export function createWidget(userConfig) {
                 </tr>
                 <tr>
                     <td class="postblock">Media</td>
-                    <td><input class="c-imageInput" name="entry.${cfg.imageId}" id="entry.${cfg.imageId}" type="hidden"></td>
+                    <td class="c-mediaCell" data-media-cell><input class="c-imageInput" name="entry.${cfg.imageId}" id="entry.${cfg.imageId}" type="hidden"></td>
                 </tr>
                 <tr>
                     <td class="postblock">Status</td>
@@ -169,7 +169,7 @@ export function createWidget(userConfig) {
     if (cfg.commentsOpen) {
         form.innerHTML = formHtml;
         const imageInput = document.getElementById(`entry.${cfg.imageId}`);
-        imageInput.parentElement.appendChild(createMediaUploader({ input: imageInput }));
+        form.querySelector('[data-media-cell]').appendChild(createMediaUploader({ input: imageInput }));
     } else {
         form.innerHTML = `<div class="globalMessage c-closedMessage">${cfg.closedCommentsText}</div>`;
     }
@@ -279,7 +279,7 @@ export function createWidget(userConfig) {
         sheetId:               cfg.sheetId,
         pagePath,
         nameId:                cfg.nameId,
-        websiteId:             cfg.websiteId,
+        subjectId:             cfg.subjectId,
         textId:                cfg.textId,
         imageId:               cfg.imageId,
         pageId:                cfg.pageId,
@@ -338,7 +338,7 @@ export function createWidget(userConfig) {
 
         if (cfg.commentsOpen) {
             document.getElementById(`entry.${cfg.nameId}`).value    = '';
-            document.getElementById(`entry.${cfg.websiteId}`).value = '';
+            document.getElementById(`entry.${cfg.subjectId}`).value = '';
             document.getElementById(`entry.${cfg.textId}`).value    = '';
             document.getElementById(`entry.${cfg.imageId}`).value   = '';
             document.getElementById(`entry.${cfg.imageId}`).dispatchEvent(new Event('change'));

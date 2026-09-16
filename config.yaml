@@ -26,7 +26,7 @@ sheetId: ""
 # To find these IDs, open your Google Form in a browser, click the three dots ->
 # "Get pre-filled link", fill dummy data, click "Get link", and inspect the URL query params.
 nameId: "" # Text field for poster's name / tripcode
-websiteId: "" # Text field for optional website/link
+subjectId: "" # Text field for the optional post subject
 textId: "" # Textarea field for comment content
 pageId: "" # Hidden field storing page path (for multi-page / threads)
 replyId: "" # Hidden field storing parent post number when replying
@@ -116,7 +116,7 @@ tripcodeLabels: {}
 
 # Form field labels
 nameFieldLabel: "Name"
-websiteFieldLabel: "Website"
+subjectFieldLabel: "Subject"
 imageFieldLabel: "Image URL"
 textFieldLabel: "" # If empty, defaults to "Comment"
 submitButtonLabel: "Submit"

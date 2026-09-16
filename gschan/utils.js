@@ -21,13 +21,6 @@ export function sanitizeText(value) {
     return String(value || '');
 }
 
-export function sanitizeWebsite(value) {
-    const website = String(value || '').trim();
-    if (!website) { return '' }
-    if (/^https?:\/\//i.test(website)) { return website }
-    return `https://${website}`;
-}
-
 export function sanitizeImageUrls(value) {
     const raw = String(value || '').trim();
     if (!raw) { return [] }
@@ -56,15 +49,6 @@ export function sanitizeSingleImageUrl(value) {
         return parsedUrl.href;
     } catch {
         return '';
-    }
-}
-
-export function getWebsiteLabel(value) {
-    try {
-        const url = new URL(value);
-        return url.hostname.replace(/^www\./i, '') || value;
-    } catch {
-        return String(value).replace(/^https?:\/\//i, '');
     }
 }
 

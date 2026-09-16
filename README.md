@@ -205,7 +205,7 @@ gschan uses Google Forms for submissions and its linked Google Sheet for storage
 1. Go to [Google Forms](https://forms.new) and create a new form.
 2. Add **6 questions** with the following exact types:
    - **Name**: Short answer
-   - **Website**: Short answer
+   - **Subject**: Short answer
    - **Comment**: Paragraph
    - **Image**: Short answer
    - **Page**: Short answer
@@ -219,7 +219,7 @@ gschan uses Google Forms for submissions and its linked Google Sheet for storage
 
 ### 3. Get Pre-filled Link & Run Setup
 1. In your Google Form, click the three vertical dots (top-right) -> **Get pre-filled link**.
-2. Type dummy values into each field (e.g. `NAME`, `WEB`, `COMMENT`, `IMAGE`, `PAGE`, `REPLY`).
+2. Type dummy values into each field (e.g. `NAME`, `SUBJECT`, `COMMENT`, `IMAGE`, `PAGE`, `REPLY`).
 3. Click **Get link** and copy it to your clipboard.
 4. Run the setup wizard:
    ```bash
@@ -243,7 +243,7 @@ All board behaviors, titles, themes, and limits are managed in [`config.yaml`](c
 formId: "YOUR_GOOGLE_FORM_ID"
 sheetId: "YOUR_GOOGLE_SHEET_ID"
 nameId: "1000000001"
-websiteId: "1000000002"
+subjectId: "1000000002"
 textId: "1000000003"
 pageId: "1000000004"
 replyId: "1000000005"

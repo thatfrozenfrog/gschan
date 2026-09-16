@@ -75,6 +75,9 @@ export function appendReplyChildren(parentNode, comment, ctx) {
 export function renderCommentMarkup(comment, isOp, ctx) {
     const replyLinks = comment.replies.map((reply) => reply.postNumber);
     const nameMarkup = renderNameMarkup(comment);
+    const subjectMarkup = comment.Subject
+        ? `<span class="subject c-subject">${escapeHtml(comment.Subject)}</span> `
+        : '';
     const repliesCollapsed = ctx.collapsedReplies && comment.depth > 0 && comment.replies.length > 0;
     const replyActionMarkup = ctx.commentsOpen
         ? `<span>[<button type="button" class="replylink c-headerReply" data-post-number="${comment.postNumber}">${ctx.replyButtonText}</button>]</span>`
@@ -90,11 +93,11 @@ export function renderCommentMarkup(comment, isOp, ctx) {
         ${isCollage ? attachmentMarkup : ''}
         ${toggleMarkup ? `<span class="c-opToggleWrap">${toggleMarkup}</span>` : ''}
         <div class="postInfoM mobile" id="pim${comment.postNumber}">
-            <span class="nameBlock">${nameMarkup}<br /></span>
+            ${subjectMarkup}<span class="nameBlock">${nameMarkup}<br /></span>
             <span class="dateTime postNum">${escapeHtml(comment.timestampShort)} <a href="#p${comment.postNumber}" title="Link to this post">No.</a><a class="c-postReplyLink" href="#p${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
         </div>
         <div class="postInfo desktop" id="pi${comment.postNumber}">
-            <span class="nameBlock">${nameMarkup}</span>
+            ${subjectMarkup}<span class="nameBlock">${nameMarkup}</span>
             <span class="dateTime" title="${escapeAttribute(comment.timestampLong)}">${escapeHtml(comment.timestampShort)}</span>
             <span class="postNum desktop"><a href="#p${comment.postNumber}" title="Link to this post">No.</a><a class="c-postReplyLink" href="#p${comment.postNumber}" title="Reply to this post">${comment.postNumber}</a></span>
             <span class="c-postTools">${replyActionMarkup}</span>
@@ -106,28 +109,12 @@ export function renderCommentMarkup(comment, isOp, ctx) {
 }
 
 export function renderNameMarkup(comment) {
-    const websiteLabel = String(comment._websiteLabel || '');
-    const websiteSpaces = (websiteLabel.match(/ /g) || []).length;
-    const displayWebsiteLabel = decodeWebsiteLabel(websiteLabel);
-    const siteMarkup = comment.Website
-        ? websiteSpaces > 2
-            ? `<span class="c-nameSite useremail">${escapeHtml(displayWebsiteLabel)}</span> `
-            : `<a class="c-nameSite useremail" href="${escapeAttribute(comment.Website)}" target="_blank" rel="noreferrer">${escapeHtml(displayWebsiteLabel)}</a> `
-        : '';
     const tripMarkup = comment.TripcodeLabel
         ? `<span class="postertrip"> ## ${escapeHtml(comment.TripcodeLabel)}</span>`
         : comment.Tripcode
         ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>`
         : '';
-    return `${siteMarkup}<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
-}
-
-function decodeWebsiteLabel(label) {
-    try {
-        return decodeURIComponent(label);
-    } catch {
-        return label;
-    }
+    return `<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
 }
 
 export function renderBacklinks(replyNumbers) {

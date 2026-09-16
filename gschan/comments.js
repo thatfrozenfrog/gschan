@@ -1,13 +1,13 @@
 // gschan/comments.js — Data fetching, normalization, and comment parsing
 
 import generateTripcode from 'tripcode';
-import { sanitizeText, sanitizeWebsite, sanitizeImageUrls, createStablePostNumber, getWebsiteLabel } from './utils.js';
+import { sanitizeText, sanitizeImageUrls, createStablePostNumber } from './utils.js';
 import { convertTimestamp } from './timestamps.js';
 
 /**
  * Fetch and process comments from Google Sheets, then call onResult(comments).
  */
-export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, tripcodeLabels }, onResult, onError) {
+export function fetchComments({ sheetId, pagePath, nameId, subjectId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, tripcodeLabels }, onResult, onError) {
     const cacheBuster = Date.now();
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&_=${cacheBuster}`;
 
@@ -24,14 +24,14 @@ export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, im
         const fallback = (idx) => (idx >= 0 ? idx : null);
 
         let nameIdx = fallback(findCol((l) => l === 'name' || l.includes('name')));
-        let websiteIdx = fallback(findCol((l) => l.includes('website') || l.includes('url')));
+        let subjectIdx = fallback(findCol((l) => l === 'subject' || l.includes('subject') || l.includes('title') || l === norm(`entry.${subjectId}`)));
         let textIdx = fallback(findCol((l) => l === 'text' || l.includes('comment') || l.includes('message') || l.includes('content')));
         let imageIdx = fallback(findCol((l) => l === 'image' || l.includes('image') || l.includes('file') || l.includes('picture') || l === norm(`entry.${imageId}`)));
         let pageIdx = fallback(findCol((l) => l === 'page' || l.includes('page') || l.includes('path') || l === norm(`entry.${pageId}`)));
         let replyIdx = fallback(findCol((l) => l === 'reply' || l.includes('reply') || l === norm(`entry.${replyId}`)));
 
         nameIdx = nameIdx ?? (cols.length > 1 ? 1 : null);
-        websiteIdx = websiteIdx ?? (cols.length > 2 ? 2 : null);
+        subjectIdx = subjectIdx ?? (cols.length > 2 ? 2 : null);
         textIdx = textIdx ?? (cols.length > 3 ? 3 : null);
 
         const getCellVal = (row, idx) => {
@@ -56,7 +56,7 @@ export function fetchComments({ sheetId, pagePath, nameId, websiteId, textId, im
                 rawComment.Timestamp2 = (row.c[0] && row.c[0].f) ? row.c[0].f : '';
                 rawComment.Timestamp = getCellVal(row, 0);
                 rawComment.Name = getCellVal(row, nameIdx);
-                rawComment.Website = getCellVal(row, websiteIdx);
+                rawComment.Subject = getCellVal(row, subjectIdx);
                 rawComment.Text = getCellVal(row, textIdx);
                 if (imageIdx !== null) { rawComment.Image = getCellVal(row, imageIdx) }
                 if (pageIdx !== null) { rawComment.Page = getCellVal(row, pageIdx) }
@@ -96,7 +96,7 @@ export function normalizeComments(comments, { pagePath, timezoneOffsetMinutes, t
 
 export function createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels }) {
     const safeName = sanitizeText(comment.Name || 'Cirno');
-    const safeWebsite = sanitizeWebsite(comment.Website);
+    const safeSubject = sanitizeText(comment.Subject || '');
     const safeImages = sanitizeImageUrls(comment.Image);
     const safeText = sanitizeText(comment.Text || '');
     const safeTimestamp2 = String(comment.Timestamp2 || comment.Timestamp || Date.now());
@@ -114,8 +114,7 @@ export function createCanonicalComment(comment, seenPostNumbers, { pagePath, tim
         Name: parsedName.name,
         Tripcode: parsedName.tripcode,
         TripcodeLabel: lookupTripcodeLabel(parsedName.tripcode, tripcodeLabels),
-        Website: safeWebsite,
-        _websiteLabel: safeWebsite ? getWebsiteLabel(safeWebsite) : '',
+        Subject: safeSubject,
         Images: safeImages,
         Text: safeText,
         Reply: String(comment.Reply || '').trim(),
