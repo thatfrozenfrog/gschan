@@ -36,4 +36,24 @@ describe('posting form', () => {
     expect(addMedia?.closest('td')).toBe(mediaCell);
     expect(mediaCell?.cellIndex).toBe(1);
   });
+
+  test('uses the legacy Website ID until setup migrates an existing config', () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => 'google.visualization.Query.setResponse({"table":{"parsedNumHeaders":0,"cols":[],"rows":[]}});',
+    }));
+
+    createWidget({
+      formId: 'form',
+      sheetId: 'sheet',
+      nameId: '1',
+      websiteId: '2',
+      textId: '3',
+      imageId: '4',
+      pageId: '5',
+      replyId: '6',
+    });
+
+    expect(document.getElementById('entry.2')?.classList.contains('c-subjectInput')).toBe(true);
+  });
 });

@@ -71,6 +71,7 @@ export function createWidget(userConfig) {
         themeLabelText:       'Theme',
         ...userConfig,
     };
+    cfg.subjectId = cfg.subjectId || userConfig.websiteId || '';
 
     // Rarebit fix
     if (cfg.fixRarebitIndexPage) { cfg.includeUrlParameters = true }

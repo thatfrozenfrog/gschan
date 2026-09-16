@@ -191,6 +191,9 @@ export function updateConfigYaml(configPath = CONFIG_PATH, updates: Record<strin
   for (const [key, value] of Object.entries(updates)) {
     doc.set(key, value);
   }
+  if (updates.subjectId !== undefined) {
+    doc.delete('websiteId');
+  }
   fs.writeFileSync(configPath, doc.toString(), 'utf8');
 }
 
@@ -267,7 +270,7 @@ ${c.cyan}Quick Guide: How to create your Google Form submission API:${c.reset}
 
     // Field mapping
     updates.nameId = parsedForm.nameId || currentCfg.nameId || '';
-    updates.subjectId = parsedForm.subjectId || currentCfg.subjectId || '';
+    updates.subjectId = parsedForm.subjectId || currentCfg.subjectId || currentCfg.websiteId || '';
     updates.textId = parsedForm.textId || currentCfg.textId || '';
     updates.imageId = parsedForm.imageId || currentCfg.imageId || '';
     updates.pageId = parsedForm.pageId || currentCfg.pageId || '';

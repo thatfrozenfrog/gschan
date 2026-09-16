@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { createCanonicalComment, fetchComments } from './comments.js';
 import { renderCommentMarkup } from './thread.js';
+import { validateHotlink } from './media-uploader.js';
 
 const commentContext = {
   commentsOpen: true,
@@ -77,6 +78,15 @@ describe('Subject data flow', () => {
 
     expect(comments).toHaveLength(1);
     expect(comments[0].Subject).toBe('this is a test title');
+  });
+});
+
+describe('media URL validation', () => {
+  test('accepts extensionless booru file endpoints as images', () => {
+    expect(validateHotlink('https://soybooru.com/api/booru/posts/260618/file')).toEqual({
+      valid: true,
+      kind: 'image',
+    });
   });
 });
 

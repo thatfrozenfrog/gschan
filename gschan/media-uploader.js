@@ -11,7 +11,9 @@ export function validateHotlink(value) {
             return { valid: false, kind: undefined };
         }
         const extension = url.pathname.split('.').pop().toLowerCase();
-        const kind = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'].includes(extension) ? 'image'
+        const extensionlessMediaEndpoint = !/\.[a-z0-9]+$/i.test(url.pathname)
+            && /\/(?:file|download|raw|media)(?:\/|$)/i.test(url.pathname);
+        const kind = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif'].includes(extension) || extensionlessMediaEndpoint ? 'image'
             : ['mp4', 'webm', 'mov', 'ogg'].includes(extension) ? 'video' : undefined;
         return { valid: Boolean(kind), kind };
     } catch {
