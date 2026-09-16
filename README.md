@@ -86,16 +86,38 @@ Whether you want to embed a 4chan-style comment section into your website, run a
 
 ## Tech Stack
 
+### Languages & Core
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![YAML](https://img.shields.io/badge/YAML-CB171E?style=for-the-badge&logo=yaml&logoColor=white)](https://yaml.org/)
+[![GNU Bash](https://img.shields.io/badge/GNU%20Bash-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Windows Batch](https://img.shields.io/badge/Windows%20Batch-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands)
+
+### Frameworks, Storage & Services
+
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Google Sheets](https://img.shields.io/badge/Google%20Sheets-34A853?style=for-the-badge&logo=googlesheets&logoColor=white)](https://developers.google.com/chart/interactive/docs/queries)
+[![Google Forms](https://img.shields.io/badge/Google%20Forms-7248B9?style=for-the-badge&logo=googleforms&logoColor=white)](https://docs.google.com/forms)
+
+<br />
+
 | Layer | Technology | Description |
 | :--- | :--- | :--- |
-| **Runtime & Build** | [Vite 7](https://vitejs.dev/) | Ultra-fast client bundler and multi-page static site generator |
-| **Language** | Modern JavaScript (ESM) & [TypeScript](https://www.typescriptlang.org/) | Type-safe setup wizard and zero-framework frontend |
+| **Languages** | Modern JavaScript (ESM) & [TypeScript](https://www.typescriptlang.org/) | Type-safe setup wizard and zero-framework frontend |
+| **Markup & Styling** | [HTML5](https://developer.mozilla.org/en-US/docs/Web/HTML) & [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) | Authentic 4chan stylesheets, flags, and responsive layout |
 | **Configuration** | [YAML](https://yaml.org/) / `@modyfi/vite-plugin-yaml` | Human-readable board configuration imported directly into bundle |
+| **Shell Scripting** | [GNU Bash](https://www.gnu.org/software/bash/) & [Windows CMD](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/windows-commands) | Interactive cross-platform bootstrap launchers (`SETUP.SH`, `SETUP.CMD`) |
+| **Runtime & Build** | [Vite 7](https://vitejs.dev/) & [Node.js](https://nodejs.org/) | Ultra-fast client bundler and multi-page static site generator |
 | **Backend & Storage** | [Google Sheets API](https://developers.google.com/chart/interactive/docs/queries) | Free real-time JSON endpoint via Google Visualization Query API |
 | **Submission API** | [Google Forms](https://docs.google.com/forms) | Direct browser-to-sheet submission without custom backend code |
+| **Testing** | [Vitest](https://vitest.dev/) | Unit testing suite for parsers, sanitizers, and utilities |
 | **Cryptography** | [`tripcode`](https://www.npmjs.com/package/tripcode) | Traditional 4chan DES/SHA-1 tripcode hashing |
 | **Obfuscation** | [`vite-plugin-bundle-obfuscator`](https://www.npmjs.com/package/vite-plugin-bundle-obfuscator) | Production asset protection and script minification |
-| **Testing** | [Vitest](https://vitest.dev/) | Unit testing suite for parsers, sanitizers, and utilities |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
