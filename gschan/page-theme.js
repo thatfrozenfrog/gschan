@@ -12,7 +12,7 @@ const themes = {
     book:     new URL('./skin/futaba.css', import.meta.url).href,
 };
 
-const defaultTheme = config.defaultTheme || 'yotsuba';
+const defaultTheme = (config && config.defaultTheme) || 'yotsuba';
 const active = getStoredTheme({ themePaths: themes, defaultTheme });
 ensureStylesheet(themes[active], 'board-theme');
 

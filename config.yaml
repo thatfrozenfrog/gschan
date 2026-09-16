@@ -15,31 +15,31 @@
 
 # The Google Form ID.
 # Found in your Google Form URL: https://docs.google.com/forms/d/e/<formId>/viewform
-formId: "YOUR_GOOGLE_FORM_ID"
+formId: ""
 
 # The Google Sheet ID linked to the Google Form responses.
 # Found in your Google Sheet URL: https://docs.google.com/spreadsheets/d/<sheetId>/edit
 # Ensure the Google Sheet is shared as "Anyone with the link can view".
-sheetId: "YOUR_GOOGLE_SHEET_ID"
+sheetId: ""
 
 # Google Form Entry IDs (entry.XXXXX).
 # To find these IDs, open your Google Form in a browser, click the three dots ->
 # "Get pre-filled link", fill dummy data, click "Get link", and inspect the URL query params.
-nameId: "1000000001" # Text field for poster's name / tripcode
-websiteId: "1000000002" # Text field for optional website/link
-textId: "1000000003" # Textarea field for comment content
-pageId: "1000000004" # Hidden field storing page path (for multi-page / threads)
-replyId: "1000000005" # Hidden field storing parent post number when replying
-imageId: "1000000006" # Hidden field storing image/media URLs [url1][url2]
+nameId: "" # Text field for poster's name / tripcode
+websiteId: "" # Text field for optional website/link
+textId: "" # Textarea field for comment content
+pageId: "" # Hidden field storing page path (for multi-page / threads)
+replyId: "" # Hidden field storing parent post number when replying
+imageId: "" # Hidden field storing image/media URLs [url1][url2]
 
 # ==============================================================================
 # 2. Board Identity & Branding
 # ==============================================================================
 # Titles and subtitles shown on the board header and across site pages.
 
-widgetTitle: "example.com"
+widgetTitle: "gschan"
 widgetBannerTitle: "/gs/ - gschan"
-widgetBannerSubtitle: "no way gschan built the xite himself o algo"
+widgetBannerSubtitle: "Google Sheets & Forms Powered Imageboard Engine"
 
 # ==============================================================================
 # 3. Posting Rules & Behavior
@@ -51,7 +51,7 @@ commentsOpen: true
 
 # If false, users MUST attach at least one image or video embed to create a new thread.
 # Replies to existing threads do not require an embed.
-allowPostWithoutEmbed: false
+allowPostWithoutEmbed: true
 
 # Error message displayed when a user tries to start a thread without media.
 embedRequiredText: "An embed is required to start a new thread."
@@ -90,15 +90,13 @@ longTimestamp: false
 # Client-side word filter applied when comments are rendered.
 
 # Enable or disable the word filter.
-wordFilterOn: true
+wordFilterOn: false
 
 # Replacement text inserted in place of filtered words.
 filterReplacement: "**CENSORED**"
 
 # List of words or phrases to filter (case-insensitive word-boundary matching).
-filteredWords:
-  - "soyjak"
-  - "suika"
+filteredWords: []
 
 # ==============================================================================
 # 6. Tripcode Roles & Badges
@@ -106,8 +104,7 @@ filteredWords:
 # Maps tripcode hashes (from Name#secret input) to administrative badges.
 # Format: '!<HASH>': 'BADGE_NAME'
 # Example: '!EXAMPLE_TRIP': 'ADMIN' renders as: Name ◆ ADMIN
-tripcodeLabels:
-  "!EXAMPLE_TRIP": "ADMIN"
+tripcodeLabels: {}
 
 # ==============================================================================
 # 7. UI Labels & Localization
