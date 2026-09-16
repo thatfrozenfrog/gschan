@@ -41,10 +41,14 @@ export function createWidget(userConfig) {
         maxLength:            500,
         maxLengthName:        16,
         commentsOpen:         true,
+        defaultName:          'Anon',
         allowPostWithoutEmbed: true,
         embedRequiredText:    'An embed is required to start a new thread.',
         collapsedReplies:     false,
         longTimestamp:        false,
+        endlessScroll:        false,
+        autoUpdate:           true,
+        autoUpdateIntervalMinutes: 1,
         includeUrlParameters: false,
         fixRarebitIndexPage:  false,
         wordFilterOn:         false,
@@ -100,16 +104,22 @@ export function createWidget(userConfig) {
         <section class="c-widget-shell">
             <div class="boardBanner c-widget-banner">
                 <div class="c-themeConfig">
-                    <label class="c-themeLabel" for="c_themeSelect">${cfg.themeLabelText}</label>
-                    <select id="c_themeSelect" class="c-themeSelect" aria-label="Theme selector">
-                        <option value="yotsuba">Yotsuba</option>
-                        <option value="yotsubab">Yotsuba B</option>
-                        <option value="futaba">Futaba</option>
-                        <option value="burichan">Burichan</option>
-                        <option value="tomorrow">Tomorrow</option>
-                        <option value="photon">Photon</option>
-                        <option value="spooky">Spooky</option>
-                    </select>
+                    <div class="c-themePicker">
+                        <label class="c-themeLabel" for="c_themeSelect">${cfg.themeLabelText}</label>
+                        <select id="c_themeSelect" class="c-themeSelect" aria-label="Theme selector">
+                            <option value="yotsuba">Yotsuba</option>
+                            <option value="yotsubab">Yotsuba B</option>
+                            <option value="futaba">Futaba</option>
+                            <option value="burichan">Burichan</option>
+                            <option value="tomorrow">Tomorrow</option>
+                            <option value="photon">Photon</option>
+                            <option value="spooky">Spooky</option>
+                        </select>
+                    </div>
+                    <div class="c-viewConfig">
+                        <label><input id="c_endlessScroll" type="checkbox" ${cfg.endlessScroll ? 'checked' : ''}> Endless scroll</label>
+                        <label><input id="c_autoUpdate" type="checkbox" ${cfg.autoUpdate ? 'checked' : ''}> Auto update every <input id="c_autoUpdateInterval" type="number" min="1" value="${cfg.autoUpdateIntervalMinutes}" aria-label="Auto update interval in minutes"> min</label>
+                    </div>
                 </div>
                 <div class="boardTitle">${cfg.widgetBannerTitle}</div>
                 <div class="boardSubtitle">${cfg.widgetBannerSubtitle}</div>
@@ -166,6 +176,9 @@ export function createWidget(userConfig) {
     const form          = document.getElementById('c_form');
     const container     = document.getElementById('c_container');
     const themeSelect   = document.getElementById('c_themeSelect');
+    const endlessScrollInput = document.getElementById('c_endlessScroll');
+    const autoUpdateInput = document.getElementById('c_autoUpdate');
+    const autoUpdateIntervalInput = document.getElementById('c_autoUpdateInterval');
 
     if (cfg.commentsOpen) {
         form.innerHTML = formHtml;
@@ -243,6 +256,8 @@ export function createWidget(userConfig) {
         allComments: [],
         commentDivs: [],
         catalogMode: false,
+        endlessScroll: cfg.endlessScroll,
+        autoRefreshTimer: null,
     };
 
     // ── Reply callback ────────────────────────────────────────────────────────────
@@ -275,6 +290,12 @@ export function createWidget(userConfig) {
         displayComments(state.allComments, displayCtx, state);
     });
 
+    endlessScrollInput.addEventListener('change', () => {
+        state.endlessScroll = endlessScrollInput.checked;
+        state.pageNum = 1;
+        displayComments(state.allComments, displayCtx, state);
+    });
+
     // ── Fetch context ─────────────────────────────────────────────────────────────
     const fetchCtx = {
         sheetId:               cfg.sheetId,
@@ -285,6 +306,7 @@ export function createWidget(userConfig) {
         imageId:               cfg.imageId,
         pageId:                cfg.pageId,
         replyId:               cfg.replyId,
+        defaultName:           cfg.defaultName,
         timezoneOffsetMinutes,
         tripcodeLabels:        cfg.tripcodeLabels,
     };
@@ -307,7 +329,7 @@ export function createWidget(userConfig) {
             submitButton.disabled = true;
 
             const nameInput = document.getElementById(`entry.${cfg.nameId}`);
-            if (nameInput && !nameInput.value.trim()) { nameInput.value = 'Cirno' }
+            if (nameInput && !nameInput.value.trim()) { nameInput.value = cfg.defaultName }
 
             const formData = new FormData(form);
 
@@ -316,7 +338,7 @@ export function createWidget(userConfig) {
             const rawName = String(formData.get(nameKey) || '');
             const hashIdx = rawName.indexOf('#');
             if (hashIdx !== -1) {
-                const visibleName = rawName.slice(0, hashIdx).trim() || 'Cirno';
+                const visibleName = rawName.slice(0, hashIdx).trim() || cfg.defaultName;
                 const tripSecret = rawName.slice(hashIdx + 1).trim().slice(0, 8);
                 const tripHash = tripSecret ? generateTripcode(tripSecret) : '';
                 formData.set(nameKey, tripHash ? `${visibleName}!!${tripHash}` : visibleName);
@@ -329,21 +351,22 @@ export function createWidget(userConfig) {
     }
 
     // ── getComments ───────────────────────────────────────────────────────────────
-    function getComments() {
+    function getComments({ resetForm = true } = {}) {
         submitButton.disabled = true;
 
-        // Reset reply state
-        replyingTextEl.style.display = 'none';
-        replyInput.value = '';
-        clearFormError();
+        if (resetForm) {
+            replyingTextEl.style.display = 'none';
+            replyInput.value = '';
+            clearFormError();
 
-        if (cfg.commentsOpen) {
-            document.getElementById(`entry.${cfg.nameId}`).value    = '';
-            document.getElementById(`entry.${cfg.subjectId}`).value = '';
-            document.getElementById(`entry.${cfg.textId}`).value    = '';
-            document.getElementById(`entry.${cfg.imageId}`).value   = '';
-            document.getElementById(`entry.${cfg.imageId}`).dispatchEvent(new Event('change'));
-            if (textInput) { textInput.dataset.replyPrefix = '' }
+            if (cfg.commentsOpen) {
+                document.getElementById(`entry.${cfg.nameId}`).value    = '';
+                document.getElementById(`entry.${cfg.subjectId}`).value = '';
+                document.getElementById(`entry.${cfg.textId}`).value    = '';
+                document.getElementById(`entry.${cfg.imageId}`).value   = '';
+                document.getElementById(`entry.${cfg.imageId}`).dispatchEvent(new Event('change'));
+                if (textInput) { textInput.dataset.replyPrefix = '' }
+            }
         }
 
         fetchComments(
@@ -362,6 +385,19 @@ export function createWidget(userConfig) {
         );
     }
 
+    function scheduleAutoUpdate() {
+        window.clearInterval(state.autoRefreshTimer);
+        const minutes = Math.max(1, Number(autoUpdateIntervalInput.value) || 1);
+        autoUpdateIntervalInput.value = String(minutes);
+        if (autoUpdateInput.checked) {
+            state.autoRefreshTimer = window.setInterval(() => getComments({ resetForm: false }), minutes * 60 * 1000);
+        }
+    }
+
+    autoUpdateInput.addEventListener('change', scheduleAutoUpdate);
+    autoUpdateIntervalInput.addEventListener('change', scheduleAutoUpdate);
+
     // ── Boot ──────────────────────────────────────────────────────────────────────
+    scheduleAutoUpdate();
     getComments();
 }

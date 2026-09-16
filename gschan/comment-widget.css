@@ -40,6 +40,12 @@ div#boardNavDesktopFoot {
   top: 8px;
   right: 10px;
   z-index: 1;
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+#c_widget .c-themePicker {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -53,6 +59,16 @@ div#boardNavDesktopFoot {
 #c_widget .c-themeSelect {
   max-width: 140px;
 }
+
+#c_widget .c-viewConfig {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  font-size: 11px;
+}
+
+#c_widget .c-viewConfig label { white-space: nowrap; }
+#c_widget #c_autoUpdateInterval { width: 3.5em; font: inherit; }
 
 #c_widget .c-inputDiv {
   display: grid;
@@ -493,6 +509,17 @@ div#boardNavDesktopFoot {
   padding-top: 4px;
 }
 
+#c_widget .c-paginationEllipsis {
+  align-self: center;
+  padding-inline: 2px;
+}
+
+#c_widget #c_endlessScrollSentinel {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
 #c_widget .c-closedMessage {
   padding: 12px;
   border: 1px solid #d9bfb7;
@@ -511,7 +538,7 @@ div#boardNavDesktopFoot {
 
   #c_widget .c-widget-banner {
     padding-right: 8px;
-    padding-top: 36px;
+    padding-top: 72px;
   }
 
   #c_widget .c-themeConfig {

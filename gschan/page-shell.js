@@ -33,8 +33,12 @@ if (root.dataset.pageShellMounted === '1') {
   navigation.innerHTML = NAV_LINKS;
 
   const bannerTitle = config.widgetBannerTitle || '/gs/ - gschan';
-  const bannerSubtitle = config.widgetBannerSubtitle || 'no way gschan built the xite himself o algo';
-  const siteTitle = config.widgetTitle || 'example.com';
+  const bannerSubtitle = config.widgetBannerSubtitle || 'lorem ipsum dolor sit amet';
+  const siteTitle = config.widgetBannerTitle || 'example.com';
+
+  if (document.querySelector('title[data-widget-title]')) {
+    document.title = siteTitle;
+  }
 
   const header = document.getElementById('page-header') || document.getElementById('page-banner');
   if (header) header.innerHTML = `

@@ -7,7 +7,7 @@ import { convertTimestamp } from './timestamps.js';
 /**
  * Fetch and process comments from Google Sheets, then call onResult(comments).
  */
-export function fetchComments({ sheetId, pagePath, nameId, subjectId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, tripcodeLabels }, onResult, onError) {
+export function fetchComments({ sheetId, pagePath, nameId, subjectId, textId, imageId, pageId, replyId, timezoneOffsetMinutes, tripcodeLabels, defaultName }, onResult, onError) {
     const cacheBuster = Date.now();
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&_=${cacheBuster}`;
 
@@ -26,7 +26,7 @@ export function fetchComments({ sheetId, pagePath, nameId, subjectId, textId, im
         let nameIdx = fallback(findCol((l) => l === 'name' || l.includes('name')));
         let subjectIdx = fallback(findCol((l) => l === 'subject' || l.includes('subject') || l.includes('title') || l === norm(`entry.${subjectId}`)));
         let textIdx = fallback(findCol((l) => l === 'text' || l.includes('comment') || l.includes('message') || l.includes('content')));
-        let imageIdx = fallback(findCol((l) => l === 'image' || l.includes('image') || l.includes('file') || l.includes('picture') || l === norm(`entry.${imageId}`)));
+        let imageIdx = fallback(findCol((l) => l === 'image' || l.includes('image') || l.includes('media') || l.includes('file') || l.includes('picture') || l === norm(`entry.${imageId}`)));
         let pageIdx = fallback(findCol((l) => l === 'page' || l.includes('page') || l.includes('path') || l === norm(`entry.${pageId}`)));
         let replyIdx = fallback(findCol((l) => l === 'reply' || l.includes('reply') || l === norm(`entry.${replyId}`)));
 
@@ -66,7 +66,7 @@ export function fetchComments({ sheetId, pagePath, nameId, subjectId, textId, im
             }
         }
 
-        comments = normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels });
+        comments = normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels, defaultName });
 
         onResult(comments);
     }).catch(onError);
@@ -86,23 +86,23 @@ export function fetchSheet(url) {
     });
 }
 
-export function normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels }) {
+export function normalizeComments(comments, { pagePath, timezoneOffsetMinutes, tripcodeLabels, defaultName = 'Anon' }) {
     const seenPostNumbers = new Set();
 
     return comments
-        .map((comment) => createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels }))
+        .map((comment) => createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels, defaultName }))
         .sort((a, b) => a.timestampMs - b.timestampMs);
 }
 
-export function createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels }) {
-    const safeName = sanitizeText(comment.Name || 'Cirno');
+export function createCanonicalComment(comment, seenPostNumbers, { pagePath, timezoneOffsetMinutes, tripcodeLabels, defaultName = 'Anon' }) {
+    const safeName = sanitizeText(comment.Name || defaultName);
     const safeSubject = sanitizeText(comment.Subject || '');
     const safeImages = sanitizeImageUrls(comment.Image);
     const safeText = sanitizeText(comment.Text || '');
     const safeTimestamp2 = String(comment.Timestamp2 || comment.Timestamp || Date.now());
     const timestamps = convertTimestamp(comment.Timestamp, timezoneOffsetMinutes);
     const baseIdentity = `${pagePath}|${safeTimestamp2}|${safeName}|${safeText}`;
-    const parsedName = parseNameField(safeName);
+    const parsedName = parseNameField(safeName, defaultName);
 
     let postNumber = createStablePostNumber(baseIdentity);
     while (seenPostNumbers.has(postNumber)) { postNumber += 1 }
@@ -130,20 +130,20 @@ export function createCanonicalComment(comment, seenPostNumbers, { pagePath, tim
     };
 }
 
-export function parseNameField(value) {
+export function parseNameField(value, defaultName = 'Anon') {
     const str = String(value || '');
 
     // New format: name!!hash — tripcode already hashed before storage
     if (str.includes('!!')) {
         const bangIdx = str.indexOf('!!');
-        const visibleName = str.slice(0, bangIdx).trim() || 'Cirno';
+        const visibleName = str.slice(0, bangIdx).trim() || defaultName;
         const computedTripcode = str.slice(bangIdx + 2).trim();
         return { name: visibleName, tripcode: computedTripcode };
     }
 
     // Legacy format: name#secret — raw secret still in DB, hash on read
     const [rawName, ...tripParts] = str.split('#');
-    const visibleName = rawName.trim() || 'Cirno';
+    const visibleName = rawName.trim() || defaultName;
     const tripSecret = tripParts.join('#').trim().slice(0, 8);
     const computedTripcode = tripSecret ? generateTripcode(tripSecret) : '';
 

@@ -56,7 +56,15 @@ export function buildThreadIndex(comments) {
     return { roots, byReference };
 }
 
+export function getPaginationPageNumbers(amountOfPages) {
+    const firstPages = Array.from({ length: Math.min(3, amountOfPages) }, (_, index) => index + 1);
+    if (amountOfPages <= 3) { return firstPages }
+    return amountOfPages === 4 ? [...firstPages, 4] : [...firstPages, 'ellipsis', amountOfPages];
+}
+
 export function displayComments(comments, ctx, state) {
+    state.endlessScrollObserver?.disconnect();
+    state.endlessScrollObserver = null;
     state.commentDivs = [];
     ctx.container.innerHTML = '';
     const { roots } = buildThreadIndex(comments);
@@ -83,7 +91,7 @@ export function displayComments(comments, ctx, state) {
     state.amountOfPages = Math.max(1, Math.ceil(roots.length / ctx.commentsPerPage));
     if (state.pageNum > state.amountOfPages) { state.pageNum = state.amountOfPages }
     const commentMax = ctx.commentsPerPage * state.pageNum;
-    const commentMin = commentMax - ctx.commentsPerPage;
+    const commentMin = state.endlessScroll ? 0 : commentMax - ctx.commentsPerPage;
     const visibleRoots = roots.slice(commentMin, commentMax);
 
     if (visibleRoots.length === 0) {
@@ -114,27 +122,68 @@ export function displayComments(comments, ctx, state) {
         }
     }
 
+    if (state.endlessScroll && state.pageNum < state.amountOfPages) {
+        const sentinel = document.createElement('div');
+        sentinel.id = 'c_endlessScrollSentinel';
+        sentinel.setAttribute('aria-live', 'polite');
+        ctx.container.appendChild(sentinel);
+
+        const loadNextPage = () => {
+            if (state.pageNum < state.amountOfPages) {
+                state.pageNum += 1;
+                displayComments(comments, ctx, state);
+            }
+        };
+
+        if (typeof IntersectionObserver === 'function') {
+            state.endlessScrollObserver = new IntersectionObserver((entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) { loadNextPage() }
+            });
+            state.endlessScrollObserver.observe(sentinel);
+        } else {
+            const loadMoreButton = document.createElement('button');
+            loadMoreButton.type = 'button';
+            loadMoreButton.className = 'c-paginationButton';
+            loadMoreButton.textContent = 'Load more';
+            loadMoreButton.addEventListener('click', loadNextPage);
+            sentinel.appendChild(loadMoreButton);
+        }
+    }
+
     // Pagination controls
-    if (state.amountOfPages > 1) {
+    if (!state.endlessScroll && state.amountOfPages > 1) {
         const pagination = document.createElement('div');
 
-        const leftButton = document.createElement('button');
-        leftButton.innerHTML = ctx.leftButtonText;
-        leftButton.id = 'c_leftButton';
-        leftButton.name = 'left';
-        leftButton.addEventListener('click', () => changePage('left', comments, ctx, state));
-        if (state.pageNum === 1) { leftButton.disabled = true }
-        leftButton.className = 'c-paginationButton';
-        pagination.appendChild(leftButton);
+        const addPageButton = (label, pageNum, { disabled = false, id = '' } = {}) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            button.disabled = disabled;
+            button.className = 'c-paginationButton';
+            if (id) { button.id = id }
+            button.addEventListener('click', () => {
+                state.pageNum = pageNum;
+                displayComments(comments, ctx, state);
+            });
+            pagination.appendChild(button);
+        };
 
-        const rightButton = document.createElement('button');
-        rightButton.innerHTML = ctx.rightButtonText;
-        rightButton.id = 'c_rightButton';
-        rightButton.name = 'right';
-        rightButton.addEventListener('click', () => changePage('right', comments, ctx, state));
-        if (state.pageNum === state.amountOfPages) { rightButton.disabled = true }
-        rightButton.className = 'c-paginationButton';
-        pagination.appendChild(rightButton);
+        addPageButton('first', 1, { disabled: state.pageNum === 1, id: 'c_firstButton' });
+        addPageButton(ctx.leftButtonText, state.pageNum - 1, { disabled: state.pageNum === 1, id: 'c_leftButton' });
+
+        for (const pageNum of getPaginationPageNumbers(state.amountOfPages)) {
+            if (pageNum === 'ellipsis') {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'c-paginationEllipsis';
+                ellipsis.textContent = '...';
+                pagination.appendChild(ellipsis);
+            } else {
+                addPageButton(String(pageNum), pageNum, { disabled: pageNum === state.pageNum });
+            }
+        }
+
+        addPageButton(ctx.rightButtonText, state.pageNum + 1, { disabled: state.pageNum === state.amountOfPages, id: 'c_rightButton' });
+        addPageButton('last', state.amountOfPages, { disabled: state.pageNum === state.amountOfPages, id: 'c_lastButton' });
 
         pagination.id = 'c_pagination';
         ctx.container.appendChild(pagination);

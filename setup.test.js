@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import YAML from 'yaml';
 
-import { parseGoogleFormUrl, updateConfigYaml } from './setup.ts';
+import { loadConfigYaml, parseGoogleFormUrl, updateConfigYaml } from './setup.ts';
 
 describe('parseGoogleFormUrl', () => {
   test('maps a SUBJECT prefill value to subjectId', () => {
@@ -47,5 +47,9 @@ describe('parseGoogleFormUrl', () => {
     expect(YAML.parse(saved)).toMatchObject({ subjectId: '1002' });
     expect(YAML.parse(saved)).not.toHaveProperty('websiteId');
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  test('configures Anon as the default poster name', () => {
+    expect(loadConfigYaml().defaultName).toBe('Anon');
   });
 });

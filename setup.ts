@@ -362,6 +362,8 @@ ${c.cyan}Quick Guide: How to link and share your Google Sheet database:${c.reset
     // ───────────────────────────────────────────────────────────────────────────
     console.log(stepHeader('4', '5', 'Posting Rules & Appearance'));
 
+    updates.defaultName = await promptInput(rl, 'Default poster name', currentCfg.defaultName || 'Anon');
+
     updates.allowPostWithoutEmbed = !(await promptYesNo(
       rl,
       'Require an image/video embed when starting a new thread?',
@@ -402,6 +404,7 @@ ${c.cyan}Quick Guide: How to link and share your Google Sheet database:${c.reset
       `${c.bold}Domain / Title:${c.reset}        ${updates.widgetTitle}`,
       `${c.bold}Banner Title:${c.reset}          ${updates.widgetBannerTitle}`,
       `${c.bold}Banner Subtitle:${c.reset}       ${updates.widgetBannerSubtitle}`,
+      `${c.bold}Default Name:${c.reset}           ${updates.defaultName}`,
       `${c.bold}Require Embed on OP:${c.reset}   ${!updates.allowPostWithoutEmbed ? c.green + 'Yes' : c.yellow + 'No'}${c.reset}`,
       `${c.bold}Default Theme:${c.reset}         ${updates.defaultTheme}`,
       `${c.bold}Threads Per Page:${c.reset}      ${updates.commentsPerPage}`,

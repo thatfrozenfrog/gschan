@@ -114,7 +114,7 @@ export function renderNameMarkup(comment) {
         : comment.Tripcode
         ? `<span class="postertrip"> !${escapeHtml(comment.Tripcode)}</span>`
         : '';
-    return `<span class="name">${escapeHtml(comment.Name || 'Anonymous')}</span>${tripMarkup}`;
+    return `<span class="name">${escapeHtml(comment.Name || 'Anon')}</span>${tripMarkup}`;
 }
 
 export function renderBacklinks(replyNumbers) {

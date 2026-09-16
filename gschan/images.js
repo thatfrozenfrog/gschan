@@ -107,9 +107,9 @@ export function hydrateImageAttachment(post, comment) {
 function renderMedia(url, fileName, collage) {
     const className = collage ? 'c-fileImage c-collageImage' : 'c-fileImage';
     if (isVideoUrl(url)) {
-        return `<video class="${className}" src="${escapeAttribute(url)}" controls preload="metadata" aria-label="${escapeAttribute(fileName)}"></video>`;
+        return `<video class="${className}" src="${escapeAttribute(url)}" controls preload="metadata" referrerpolicy="no-referrer" aria-label="${escapeAttribute(fileName)}"></video>`;
     }
-    return `<img class="${className}" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy">`;
+    return `<img class="${className}" src="${escapeAttribute(url)}" alt="${escapeAttribute(fileName)}" loading="lazy" referrerpolicy="no-referrer">`;
 }
 
 export function loadImageMetadata(url) {

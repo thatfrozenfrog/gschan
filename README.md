@@ -370,11 +370,30 @@ Since `gschan` compiles to static HTML, CSS, and JavaScript, you can host it any
    ```
 3. Deploy the `dist/` directory using the `gh-pages` branch or GitHub Actions.
 
-### Cloudflare Pages
+### Cloudflare Pages (Legacy)
 1. Connect your GitHub repository in the [Cloudflare Pages Dashboard](https://pages.cloudflare.com/).
 2. Set **Build command**: `pnpm run build`
 3. Set **Build output directory**: `dist`
 4. Deploy!
+
+### Cloudflare Workers
+1. Create a local `wrangler.jsonc` file with the following content:
+   ```jsonc
+   {
+      "$schema": "./node_modules/wrangler/config-schema.json",
+      "name": "<project-name>",
+      "compatibility_date": "<YYYY-MM-DD>",
+      "assets": {
+         "directory": "./dist"
+      }
+   }
+   ```
+2. Build the project:
+   ```bash
+   pnpm run build
+   pnpm exec  wrangler deploy
+   ```
+
 
 ### Vercel / Netlify
 - **Build Command**: `pnpm run build`

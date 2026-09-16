@@ -37,7 +37,7 @@ imageId: "832516232" # Hidden field storing image/media URLs [url1][url2]
 # ==============================================================================
 # Titles and subtitles shown on the board header and across site pages.
 
-widgetTitle: "gschan example"
+widgetTitle: "gschan"
 widgetBannerTitle: "gschan example"
 widgetBannerSubtitle: "lorem ipsum dolor sit amet"
 
@@ -48,6 +48,9 @@ widgetBannerSubtitle: "lorem ipsum dolor sit amet"
 
 # Open or temporarily close the board for new comments/threads.
 commentsOpen: true
+
+# Name used when a poster leaves the name field blank.
+defaultName: "Anon"
 
 # If false, users MUST attach at least one image or video embed to create a new thread.
 # Replies to existing threads do not require an embed.
@@ -83,6 +86,13 @@ defaultTheme: "yotsuba"
 
 # Number of top-level threads/comments displayed per page.
 commentsPerPage: 10
+
+# Append further pages as the reader reaches the end of the current page.
+endlessScroll: false
+
+# Refresh comments automatically. The interval is in minutes.
+autoUpdate: true
+autoUpdateIntervalMinutes: 1
 
 # Show full timestamp (e.g. "January 1, 2026 12:00:00 AM") instead of compact (e.g. "01/01/26(Thu)12:00:00").
 longTimestamp: false
